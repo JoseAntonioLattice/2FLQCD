@@ -1,13 +1,16 @@
 program test
   use random
   use su3facts
+  use pbc
   implicit none
   integer, parameter :: dp = 8
 
   
   !call test_mean_zero()
   !call test_variance_one()
-  call test_gamma()
+  !call test_gamma()
+  !call test_gamma5()
+  !call test_pbc()
 contains
 
   subroutine assert_close(name, measured, expected, tol)
@@ -21,6 +24,18 @@ contains
     end if
   end subroutine assert_close
 
+  
+  subroutine assert_equal(name, measured, expected)
+    character(*), intent(in) :: name
+    integer, intent(in) :: measured, expected
+
+    if( measured == expected ) then
+       print"(2a)", " [PASS] : ", name
+    else
+       print"(3a,i0,a,i0)", " [FAIL] : ", name, " Expected:", expected, " Measured: ", measured
+    end if
+  end subroutine assert_equal
+  
   subroutine assert_true(name, condition)
     character(*), intent(in) :: name
     logical, intent(in) :: condition
@@ -95,5 +110,38 @@ contains
     end do
     
   end subroutine test_gamma
+
+  subroutine test_gamma5()
+    integer :: i, j
+    complex(dp) :: gamma5(4,4)
+
+    
+    call create_kronecker_delta()
+    call create_gamma_matrices()
+    gamma5 = matmul(gamma(1,:,:),gamma(2,:,:))
+    gamma5 = matmul(gamma5,gamma(3,:,:))
+    gamma5 = matmul(gamma5,gamma(4,:,:))
+    do i = 1, 4
+       do j = 1, 4
+          call assert_close("gamma5 real",real(gamma(5,i,j)),real(gamma5(i,j)),1.0E-12_dp)
+          call assert_close("gamma5 imag",aimag(gamma(5,i,j)),aimag(gamma5(i,j)),1.0E-12_dp)
+       end do
+    end do
+  end subroutine test_gamma5
+
+  subroutine test_pbc()
+    integer :: L(4),p(4),m(4), i
+    
+    L = [16,15,14,13]
+    call init_arrays(L)
+    
+    do i = 1, 4
+       p = ip(L,i)
+       m = im([1,1,1,1],i)
+       call assert_equal("ip(L)",p(i), 1)
+       call assert_equal("im(1)",m(i), L(i))
+    end do
+    
+  end subroutine test_pbc
   
 end program test

@@ -57,8 +57,11 @@ contains
     gamma(4,1,3) = 1.0_dp
     gamma(4,2,4) = 1.0_dp
 
-    
-    
+
+    gamma(5,1,1) = 1.0_dp
+    gamma(5,2,2) = 1.0_dp
+    gamma(5,3,3) = -1.0_dp
+    gamma(5,4,4) = -1.0_dp
   end subroutine create_gamma_matrices
   
 end module su3facts

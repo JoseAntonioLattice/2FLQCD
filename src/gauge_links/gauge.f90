@@ -1,15 +1,14 @@
 module gauge
+  use su3facts, only :: su3
   use pbc, only : ip, im
   implicit none
   integer, parameter, private :: dp = 8
 contains
 
-  function dagger(U)
-    
-  end function dagger
   
   function plaquette(U,x,mu,nu)
-    complex(dp), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
+    type(matrix3x3) :: plaquette
+    type(matrix3x3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
     integer, intent(in) :: x(4), mu, nu
     integer, dimension(4) :: x2, x3
 

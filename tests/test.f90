@@ -1,6 +1,6 @@
 program test
   use random
-  use su3facts
+  use su3facts,  gamma => dirac_matrix
   use starts
   use pbc
   implicit none
@@ -13,9 +13,14 @@ program test
   !call test_gamma5()
   !call test_pbc()
 
-  call test_sum_4x4matrices
-  call test_substraction_4x4matrices()
-  
+  !call test_sum_4x4matrices
+  !call test_substraction_4x4matrices()
+
+  !call test_cold_start()
+
+  !call test_su3_links
+
+  call test_gellmann_matrices
 contains
 
   subroutine assert_close(name, measured, expected, tol)
@@ -211,5 +216,66 @@ contains
     end do
     
   end subroutine test_pbc
+
+  subroutine test_cold_start()
+    integer, parameter :: n = 4
+    type(matrix3x3) :: U(n,n,n,n,n)
+    complex(dp) :: D(3,3)
+    integer :: i,j,k,l,m
+
+    
+    call create_kronecker_delta()
+    call cold_start(U,[n,n,n,n,n])
+
+    do i = 1, n
+       do j = 1, n
+          do k = 1, n
+             do l = 1,  n
+                do m = 1, n
+                   D = U(i,j,k,l,m)%mat
+                   call assert_equal_complex_matrix("cold start",D,delta_3x3,1.0E-12_dp)
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+  end subroutine test_cold_start
+
+  subroutine test_su3_links()
+    type(matrix3x3) :: A
+    type(su3) :: U, V, W
+    complex(dp) :: D(3,3), t
+
+    call create_kronecker_delta
+    D = delta_3x3
+    call U%init()
+    call V%init
+    W = U*V
+    V = U%dagger()
+    t = tr(U)
+    t = U%tr()
+    call assert_equal_complex_matrix("su3 link",U%mat,D,1.0E-12_dp)
+    call assert_equal_complex("Tr 1 = 3", t,(3.0_dp,0.0_dp),1.0e-12_dp)
+    call assert_equal_complex_matrix("product su3",W%mat,D,1.0e-12_dp)
+  end subroutine test_su3_links
+
+  subroutine test_unitarity
+    print*, "Hello"
+  end subroutine test_unitarity
+
+  subroutine test_gellmann_matrices
+    integer :: i, j
+    complex(dp) :: r
+    call create_gellmann_matrices()
+    call create_kronecker_delta()
+    do i = 1, 8
+       do j = 1, 8
+          r = 2*delta_3x3(i,j)
+          call assert_equal_complex("tr(l_i l_j) = 2d_ij",tr(gellmann_matrix(i)*gellmann_matrix(j)),r,1.0e-12_dp)
+       end do
+    end do
+    
+  end subroutine test_gellmann_matrices
   
 end program test

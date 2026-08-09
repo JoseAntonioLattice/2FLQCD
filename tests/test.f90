@@ -1,8 +1,8 @@
 program test
   use random
-  use su3facts,  gamma => dirac_matrix
   use starts
   use pbc
+  use su3facts, gamma => dirac_matrix
   implicit none
   integer, parameter :: dp = 8
 
@@ -20,9 +20,12 @@ program test
 
   !call test_su3_links
 
-  call test_gellmann_matrices
-contains
+  !call test_gellmann_matrices
+  !call test_unitarity()
 
+  call test_assert_matrix()
+  
+contains
   subroutine assert_close(name, measured, expected, tol)
     character(*), intent(in) :: name
     real(dp), intent(in) :: measured, expected, tol
@@ -75,6 +78,44 @@ contains
        print"(3a,i0,a,i0)", " [FAIL] : ", name, " Expected:", expected, " Measured: ", measured
     end if
   end subroutine assert_equal
+
+  subroutine assert_equal_real_matrix(name, measured, expected,tol)
+    character(*), intent(in) :: name
+    real(dp), intent(in), dimension(:,:) :: measured, expected
+    real(dp), intent(in) :: tol
+    logical, dimension(size(measured(:,1)),size(measured(1,:))) :: condition
+    integer :: i, j, n, m
+
+    n = size(measured(:,1))
+    m = size(measured(1,:))
+    
+    condition = abs(measured - expected) < tol
+    if( all(condition) ) then
+       print"(2a)", " [PASS] : ", name
+    else
+       print"(2a)", " [FAIL] : ", name
+       do i = 1, n
+          do j = 1, m
+             if(condition(i,j) .eqv. .false.) &
+                  print"(4x,a,i0,a,i0,a,ES12.4,a,ES12.4,a,ES12.4)", &
+                  "(",i,",",j,") Expected: ", expected(i,j), " Measured: ", measured(i,j), " tol = ", tol
+             
+          end do
+       end do
+    end if
+  end subroutine assert_equal_real_matrix
+
+  subroutine test_assert_matrix()
+    real(dp), dimension(2,2) :: A, B
+    integer :: i, j
+
+    A = 1.0_dp
+    B = 1.0_dp
+    B(2,2) = 2.0_dp
+    B(1,2) = 0.0_dp
+    call assert_equal_real_matrix("A = B (real matrix)",A,B,1.0e-12_dp)
+
+  end subroutine test_assert_matrix
   
   subroutine assert_true(name, condition)
     character(*), intent(in) :: name
@@ -130,6 +171,7 @@ contains
   end function std_err
 
   subroutine test_gamma()
+    use su3facts,  gamma => dirac_matrix
     integer :: mu, nu, i, j
     type(matrix4x4) :: product
     logical :: condition
@@ -152,6 +194,7 @@ contains
   end subroutine test_gamma
 
   subroutine test_gamma5()
+    use su3facts,  gamma => dirac_matrix
     integer :: i, j
     type(matrix4x4) :: gamma5
 
@@ -192,7 +235,7 @@ contains
     A%mat = delta
     B%mat = delta
     C = A - B
-    D%mat = (0.0E-12_dp,0.0_dp)
+    D%mat = (0.0_dp,0.0_dp)
     call assert_equal_complex_matrix("A-B",C%mat,D%mat,1.0E-12_dp)
 
     D%mat = -delta
@@ -223,7 +266,6 @@ contains
     complex(dp) :: D(3,3)
     integer :: i,j,k,l,m
 
-    
     call create_kronecker_delta()
     call cold_start(U,[n,n,n,n,n])
 
@@ -260,22 +302,39 @@ contains
     call assert_equal_complex_matrix("product su3",W%mat,D,1.0e-12_dp)
   end subroutine test_su3_links
 
-  subroutine test_unitarity
-    print*, "Hello"
+  subroutine test_unitarity()
+    type(su3) :: U,V
+    real(dp) :: r(8)
+
+    call random_number(r)
+    call create_gellmann_matrices()
+    call create_kronecker_delta()
+    call U%init_su3(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
+    
+    V = U*U%dagger()
+
+    call assert_equal_complex_matrix("unitarity su3",V%mat,delta_3x3,1.0e-12_dp)
+    
+    
   end subroutine test_unitarity
 
   subroutine test_gellmann_matrices
     integer :: i, j
     complex(dp) :: r
+    
     call create_gellmann_matrices()
-    call create_kronecker_delta()
     do i = 1, 8
        do j = 1, 8
-          r = 2*delta_3x3(i,j)
+          if( i == j )then
+             r = (2.0_dp,0.0_dp)
+          else
+             r = (0.0_dp,0.0_dp)
+          end if
           call assert_equal_complex("tr(l_i l_j) = 2d_ij",tr(gellmann_matrix(i)*gellmann_matrix(j)),r,1.0e-12_dp)
        end do
     end do
     
   end subroutine test_gellmann_matrices
+
   
 end program test

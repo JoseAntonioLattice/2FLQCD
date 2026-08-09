@@ -18,7 +18,8 @@ module su3facts
    contains
      procedure :: normalize
      procedure :: tr => tr_su3
-     procedure :: dagger => dagger_su3 
+     procedure :: dagger => dagger_su3
+     procedure :: init_su3
   end type su3
 
   type(matrix3x3) :: gellmann_matrix(8)
@@ -73,180 +74,178 @@ module su3facts
   
 contains
 
-  function matrix4x4_sum(A,B)
+  pure function matrix4x4_sum(A,B)
     type(matrix4x4), intent(in) :: A, B
     type(matrix4x4) :: matrix4x4_sum
     matrix4x4_sum%mat = A%mat+ B%mat
   end function matrix4x4_sum
 
-  function matrix4x4_substraction(A,B)
+  pure function matrix4x4_substraction(A,B)
     type(matrix4x4), intent(in) :: A, B
     type(matrix4x4) :: matrix4x4_substraction
     matrix4x4_substraction%mat = A%mat- B%mat
   end function matrix4x4_substraction
   
-  function matrix4x4_substraction2(A)
+  pure function matrix4x4_substraction2(A)
     type(matrix4x4), intent(in) :: A
     type(matrix4x4) :: matrix4x4_substraction2
     matrix4x4_substraction2%mat = -A%mat
   end function matrix4x4_substraction2
   
-  function matrix4x4_product(A,B)
+  pure function matrix4x4_product(A,B)
     type(matrix4x4), intent(in) :: A, B
     type(matrix4x4) :: matrix4x4_product
     matrix4x4_product%mat = matmul(A%mat,B%mat)
   end function matrix4x4_product
   
-  function matrix4x4_product_scalar_real_left(a,B)
+  pure function matrix4x4_product_scalar_real_left(a,B)
     type(matrix4x4), intent(in) :: B
     real(dp), intent(in) :: a
     type(matrix4x4) :: matrix4x4_product_scalar_real_left
     matrix4x4_product_scalar_real_left%mat = a*B%mat
   end function matrix4x4_product_scalar_real_left
 
-  function matrix4x4_product_scalar_real_right(B,a)
+  pure function matrix4x4_product_scalar_real_right(B,a)
     type(matrix4x4), intent(in) :: B
     real(dp), intent(in) :: a
     type(matrix4x4) :: matrix4x4_product_scalar_real_right
     matrix4x4_product_scalar_real_right%mat = B%mat*a
   end function matrix4x4_product_scalar_real_right
 
-  function matrix4x4_product_scalar_complex_left(a,B)
+  pure function matrix4x4_product_scalar_complex_left(a,B)
     type(matrix4x4), intent(in) :: B
     complex(dp), intent(in) :: a
     type(matrix4x4) :: matrix4x4_product_scalar_complex_left
     matrix4x4_product_scalar_complex_left%mat = a*B%mat
   end function matrix4x4_product_scalar_complex_left
 
-  function matrix4x4_product_scalar_complex_right(B,a)
+  pure function matrix4x4_product_scalar_complex_right(B,a)
     type(matrix4x4), intent(in) :: B
     complex(dp), intent(in) :: a
     type(matrix4x4) :: matrix4x4_product_scalar_complex_right
     matrix4x4_product_scalar_complex_right%mat = B%mat*a
   end function matrix4x4_product_scalar_complex_right
-  
-
-  function matrix3x3_sum(A,B)
+ 
+  pure function matrix3x3_sum(A,B)
     type(matrix3x3), intent(in) :: A, B
     type(matrix3x3) :: matrix3x3_sum
     matrix3x3_sum%mat = A%mat+ B%mat
   end function matrix3x3_sum
 
-  function matrix3x3_substraction(A,B)
+  pure function matrix3x3_substraction(A,B)
     type(matrix3x3), intent(in) :: A, B
     type(matrix3x3) :: matrix3x3_substraction
     matrix3x3_substraction%mat = A%mat- B%mat
   end function matrix3x3_substraction
   
-  function matrix3x3_substraction2(A)
+  pure function matrix3x3_substraction2(A)
     type(matrix3x3), intent(in) :: A
     type(matrix3x3) :: matrix3x3_substraction2
     matrix3x3_substraction2%mat = -A%mat
   end function matrix3x3_substraction2
   
-  function matrix3x3_product(A,B)
+  pure function matrix3x3_product(A,B)
     type(matrix3x3), intent(in) :: A, B
     type(matrix3x3) :: matrix3x3_product
     matrix3x3_product%mat = matmul(A%mat,B%mat)
   end function matrix3x3_product
   
-  function matrix3x3_product_scalar_real_left(a,B)
+  pure function matrix3x3_product_scalar_real_left(a,B)
     type(matrix3x3), intent(in) :: B
     real(dp), intent(in) :: a
     type(matrix3x3) :: matrix3x3_product_scalar_real_left
     matrix3x3_product_scalar_real_left%mat = a*B%mat
   end function matrix3x3_product_scalar_real_left
 
-  function matrix3x3_product_scalar_real_right(B,a)
+  pure function matrix3x3_product_scalar_real_right(B,a)
     type(matrix3x3), intent(in) :: B
     real(dp), intent(in) :: a
     type(matrix3x3) :: matrix3x3_product_scalar_real_right
     matrix3x3_product_scalar_real_right%mat = B%mat*a
   end function matrix3x3_product_scalar_real_right
 
-  function matrix3x3_product_scalar_complex_left(a,B)
+  pure function matrix3x3_product_scalar_complex_left(a,B)
     type(matrix3x3), intent(in) :: B
     complex(dp), intent(in) :: a
     type(matrix3x3) :: matrix3x3_product_scalar_complex_left
     matrix3x3_product_scalar_complex_left%mat = a*B%mat
   end function matrix3x3_product_scalar_complex_left
 
-  function matrix3x3_product_scalar_complex_right(B,a)
+  pure function matrix3x3_product_scalar_complex_right(B,a)
     type(matrix3x3), intent(in) :: B
     complex(dp), intent(in) :: a
     type(matrix3x3) :: matrix3x3_product_scalar_complex_right
     matrix3x3_product_scalar_complex_right%mat = B%mat*a
   end function matrix3x3_product_scalar_complex_right
 
-  elemental subroutine init(U)
+  pure elemental subroutine init(U)
     class(matrix3x3), intent(inout) :: U
     U%mat = delta_3x3
   end subroutine init
   
-  elemental subroutine zero(U)
+  pure elemental subroutine zero(U)
     class(matrix3x3), intent(inout) :: U
     U%mat = 0.0_dp
   end subroutine zero
   
-  function dagger_mat3x3(U)
+  pure function dagger_mat3x3(U)
     type(matrix3x3) :: dagger_mat3x3
     type(matrix3x3), intent(in) :: U
     dagger_mat3x3%mat = transpose(conjg(U%mat))
   end function dagger_mat3x3
 
-  function tr_mat3x3(U)
+  pure function tr_mat3x3(U)
     complex(dp) :: tr_mat3x3
     type(matrix3x3), intent(in) :: U
     tr_mat3x3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
   end function tr_mat3x3
   
-  
-  function su3_sum(A,B)
+  pure function su3_sum(A,B)
     type(su3), intent(in) :: A, B
     type(su3) :: su3_sum
     su3_sum%mat = A%mat+ B%mat
   end function su3_sum
 
-  function su3_substraction(A,B)
+  pure function su3_substraction(A,B)
     type(su3), intent(in) :: A, B
     type(su3) :: su3_substraction
     su3_substraction%mat = A%mat- B%mat
   end function su3_substraction
   
-  function su3_substraction2(A)
+  pure function su3_substraction2(A)
     type(su3), intent(in) :: A
     type(su3) :: su3_substraction2
     su3_substraction2%mat = -A%mat
   end function su3_substraction2
   
-  function su3_product(A,B)
+  pure function su3_product(A,B)
     type(su3), intent(in) :: A, B
     type(su3) :: su3_product
     su3_product%mat = matmul(A%mat,B%mat)
   end function su3_product
   
-  function su3_product_scalar_real_left(a,B)
+  pure function su3_product_scalar_real_left(a,B)
     type(su3), intent(in) :: B
     real(dp), intent(in) :: a
     type(su3) :: su3_product_scalar_real_left
     su3_product_scalar_real_left%mat = a*B%mat
   end function su3_product_scalar_real_left
 
-  function su3_product_scalar_real_right(B,a)
+  pure function su3_product_scalar_real_right(B,a)
     type(su3), intent(in) :: B
     real(dp), intent(in) :: a
     type(su3) :: su3_product_scalar_real_right
     su3_product_scalar_real_right%mat = B%mat*a
   end function su3_product_scalar_real_right
 
-  function su3_product_scalar_complex_left(a,B)
+  pure function su3_product_scalar_complex_left(a,B)
     type(su3), intent(in) :: B
     complex(dp), intent(in) :: a
     type(su3) :: su3_product_scalar_complex_left
     su3_product_scalar_complex_left%mat = a*B%mat
   end function su3_product_scalar_complex_left
 
-  function su3_product_scalar_complex_right(B,a)
+  pure function su3_product_scalar_complex_right(B,a)
     type(su3), intent(in) :: B
     complex(dp), intent(in) :: a
     type(su3) :: su3_product_scalar_complex_right
@@ -259,13 +258,13 @@ contains
     normalize%mat = delta_3x3
   end function normalize
 
-  function dagger_su3(U)
+  pure function dagger_su3(U)
     type(su3) :: dagger_su3
     class(su3), intent(in) :: U
     dagger_su3%mat = transpose(conjg(U%mat))
   end function dagger_su3
 
-  function tr_su3(U)
+  pure function tr_su3(U)
     complex(dp) :: tr_su3
     class(su3), intent(in) :: U
     tr_su3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
@@ -290,9 +289,9 @@ contains
 
     call gellmann_matrix%zero()
     
-    !            [ 0 1 0]
-    ! lambda_1 = [ 1 0 0]
-    !            [ 0 0 0]
+    !            [0 1 0]
+    ! lambda_1 = [1 0 0]
+    !            [0 0 0]
     gellmann_matrix(1)%mat(2,1) = 1.0_dp
     gellmann_matrix(1)%mat(1,2) = 1.0_dp
 
@@ -400,7 +399,7 @@ contains
     dirac_matrix(5)%mat(4,4) = -1.0_dp
   end subroutine create_dirac_matrix_matrices
 
-  function my_exp(X) result(expX)
+  pure function my_exp(X) result(expX)
     ! Computes exp(X) for X in the su(3) Lie algebra using Cayley-Hamilton theorem.
     !
     ! By Cayley-Hamilton, any X in su(3) (traceless, antihermitian) satisfies:
@@ -422,7 +421,7 @@ contains
     integer, parameter :: K = 20
     complex(dp) :: q0, q1, q2, q0old, q1old, q2old
     complex(dp) :: d, t, trB
-    integer :: i
+    integer :: l
     
 
     ! X^2 and its trace (needed for t)
@@ -432,15 +431,17 @@ contains
     ! Cayley-Hamilton coefficients
     ! For traceless X: characteristic poly is lambda^3 + t*lambda - d = 0
     t = -0.5_dp * trB          ! coefficient of lambda (no ii factor needed)
-    d = determinant(3, X%mat)      ! constant term: det(X), no extra ii factor
+    d = determinant(X%mat)      ! constant term: det(X), no extra ii factor
 
+    !print*, gamma(1.0_dp)
     ! Horner recurrence initialised at step K
     q0old = 1.0_dp / gamma(1.0_dp*(K+1))
+   
     q1old = (0.0_dp, 0.0_dp)
     q2old = (0.0_dp, 0.0_dp)
 
-    do i = K-1, 0, -1
-       q0 = 1.0_dp/gamma(1.0_dp*(i+1)) + d * q2old   ! X^3 = -t*X + d*I  => +d (not -ii*d)
+    do l = K-1, 0, -1
+       q0 = 1.0_dp/ gamma(1.0_dp*(l+1)) + d * q2old   ! X^3 = -t*X + d*I  => +d (not -ii*d)
        q1 = q0old - t * q2old
        q2 = q1old
        q0old = q0
@@ -451,29 +452,27 @@ contains
     expX = q0*d3x3 + q1*X + q2*B
 
   end function my_exp
-
   
-  pure recursive function determinant(n, a) result(det)
-    implicit none
-    integer, intent(in) :: n
+  pure function determinant(a) result(det)
     complex(dp), dimension(3,3), intent(in) :: a
     complex(dp) :: det
-    integer :: i, sgn
-    complex(dp), dimension(n-1, n-1) :: b
-    
-    if (n == 1) then
-       det = a(1,1)
-    else
-       det = 0.0
-       sgn = 1
-       do i = 1, n
-          ! Extract submatrix
-          b(:, :(i-1)) = a(2:, :i-1)
-          b(:, i:) = a(2:, i+1:)
-          det = det + sgn * a(1, i) * determinant(n-1, b)
-          sgn = -sgn
-       end do
-    end if
+
+    det = a(1,1)*a(2,2)*a(3,3) + a(1,2)*a(2,3)*a(3,1) + a(1,3)*a(2,1)*a(3,2) &
+         -a(1,3)*a(2,2)*a(2,1) - a(1,1)*a(2,3)*a(3,2) - a(1,2)*a(2,1)*a(3,3)
+   
   end function determinant
+
+  elemental subroutine init_su3(U,r1,r2,r3,r4,r5,r6,r7,r8)
+    class(su3), intent(inout) :: U
+    real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
+    type(su3) :: A 
+    
+    A%mat = r1*gellmann_matrix(1)%mat+r2*gellmann_matrix(2)%mat+r3*gellmann_matrix(3)%mat
+    A%mat = r4*gellmann_matrix(4)%mat+r5*gellmann_matrix(5)%mat+r6*gellmann_matrix(6)%mat
+    A%mat = r7*gellmann_matrix(7)%mat+r8*gellmann_matrix(8)%mat
+    A = my_exp(0.5_dp*i*A)
+    U%mat = A%mat
+    
+  end subroutine init_su3
   
 end module su3facts

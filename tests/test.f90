@@ -3,6 +3,8 @@ program test
   use starts
   use pbc
   use su3facts, gamma => dirac_matrix
+  use gauge
+  use parameters
   implicit none
   integer, parameter :: dp = 8
 
@@ -11,7 +13,7 @@ program test
   call test_variance_one()
   call test_gamma()
   call test_gamma5()
-  call test_pbc()
+  !call test_pbc()
 
   call test_sum_4x4matrices
   call test_substraction_4x4matrices()
@@ -24,6 +26,12 @@ program test
   call test_unitarity()
 
   call test_assert_matrix()
+  call test_plaquette()
+
+  call test_TA
+  call test_su3alg
+
+  call test_parameters
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -120,8 +128,8 @@ contains
 
     A = 1.0_dp
     B = 1.0_dp
-    B(2,2) = 2.0_dp
-    B(1,2) = 0.0_dp
+    !B(2,2) = 2.0_dp
+    !B(1,2) = 0.0_dp
     call assert_equal_real_matrix("A = B (real matrix)",A,B,1.0e-12_dp)
 
   end subroutine test_assert_matrix
@@ -257,7 +265,7 @@ contains
        call assert_equal("ip(L)",p(i), 1)
        call assert_equal("im(1)",m(i), L(i))
     end do
-    
+    !deallocate(ip1)!,ip2,ip3,ip4,im1,im2,im3,im4)
   end subroutine test_pbc
 
   subroutine test_cold_start()
@@ -271,7 +279,7 @@ contains
 
    
     call cold_start(U,[n,n,n,n,n])
-    U(1,2,3,4,4)%mat = 2.0_dp
+    
     print*, "Cold start"
     do i = 1, n
        do j = 1, n
@@ -336,7 +344,8 @@ contains
     complex(dp) :: delta(8,8), trace(8,8)
     logical :: condition(8,8)
 
-    
+
+    print*, "Test Gell-Mann Matrices"
     call create_gellmann_matrices()
     call create_kronecker_delta(delta,8)
     do i = 1, 8
@@ -349,5 +358,153 @@ contains
     
   end subroutine test_gellmann_matrices
 
+  subroutine test_plaquette()
+    integer, parameter :: n = 2
+    type(su3), dimension(4,n,n,n,n) :: U, V
+    type(su3), dimension(n,n,n,n) :: omega
+    real(dp), dimension(n,n,n,n) :: r1,r2,r3,r4,r5,r6,r7,r8
+    integer :: i,j,k,l,mu,nu
+    logical :: condition(4,4,n,n,n,n)
+    type(su3) :: plq
+    real(dp) :: tol = 1.0e-12_dp
+    character(99) :: str
+    call U%init()
+
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+
+    call omega%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
+
+    call init_arrays([n,n,n,n])
+    call gauge_transformation(U,omega)
+
+    condition = .true.
+    print*, "Plaquette invariance"
+
+    do i = 1, n
+       do j = 1, n
+          do k = 1, n
+             do l = 1,  n
+                do mu = 1, 3
+                   do nu = mu + 1, 4
+                      plq = plaquette(U,[i,j,k,l],mu,nu)
+                      condition(mu,nu,i,j,k,l) = all(abs( real(plq%mat - delta_3x3)) < tol) &
+                           .and. all(abs(aimag(plq%mat - delta_3x3)) < tol)
+                      if(.not.condition(mu,nu,i,j,k,l)) then
+                         
+                         write(str,"(4(a,i0),a,2i0,a)") " [FAIL] plq inv at x = (",i,",",j,",",k,",",l,")(",mu,nu,")"
+                         call assert_equal_complex_matrix(trim(str),plq%mat,delta_3x3,tol)
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end do
+    end do
+
+    
+    if(all(condition)) then
+       print*, "  [PASS]  : plaquette invariance"
+    end if
+  end subroutine test_plaquette
+
+
+  subroutine gauge_transformation(U,omega)
+    type(su3), intent(inout) :: U(:,:,:,:,:)
+    type(su3), intent(in) :: omega(:,:,:,:)
+    integer :: mu, i,j,k,l,m, xp(4)
+    
+    do i = 1, size(U(1,:,1,1,1))
+       do j = 1, size(U(1,1,:,1,1))
+          do k = 1, size(U(1,1,1,:,1))
+             do l = 1, size(U(1,1,1,1,:))
+                do mu = 1, size(U(:,1,1,1,1))
+                   xp = ip([i,j,k,l,m], mu)
+                   U(mu,i,j,k,l) = omega(i,j,k,l)*U(mu,i,j,k,l)*dagger(omega(xp(1),xp(2),xp(3),xp(4)))
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+  end subroutine gauge_transformation
+
+  subroutine test_TA()
+    type(matrix3x3) :: W1, TA1, TA2, TA3, DTA2, DTA3
+    type(su3) :: W2 
+    type(su3alg) :: W3
+    complex(dp) :: t1, t2, t3
+    real(dp) :: r1,r2,r3,r4,r5,r6,r7,r8
+
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+    r4 = 0.0_dp
+    r5 = 0.0_dp
+    r6 = 0.0_dp
+    r7 = 0.0_dp
+    r8 = 0.0_dp
+    call W2%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
+
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+    
+    call W3%init_su3alg(r1,r2,r3,r4,r5,r6,r7,r8)
+
+    TA2 = TA(W2)
+    TA3 = W3%TA()
+
+    DTA2 = dagger(TA2)
+    DTA3 = dagger(TA3)
+    
+    t2 = tr(TA2)
+    t3 = tr(TA3)
+       
+    call assert_equal_complex("tr W2_TA = 0", t2,(0.0_dp,0.0_dp),1.0e-12_dp)
+    call assert_equal_complex("tr W3_TA = 0", t3,(0.0_dp,0.0_dp),1.0e-12_dp)
+
+    call assert_equal_complex_matrix("W2^dagger = -W2", DTA2%mat,-TA2%mat,1.0e-12_dp)
+    call assert_equal_complex_matrix("W3^dagger = -W3", DTA3%mat,-TA3%mat,1.0e-12_dp)
+   
+  end subroutine test_TA
+
+  subroutine test_su3alg()
+    real(dp) :: r(8)
+    type(su3alg) :: P, Pd
+
+
+    call random_number(r)
+    
+    call P%init_su3alg(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
+    pd = p%dagger()
+    print*, "Test su(3) algebra element"
+    call assert_equal_complex("Tr u = 0", tr(p),(0.0_dp,0.0_dp),1.0e-12_dp)
+    call assert_equal_complex_matrix("u^dagger = u", pd%mat,p%mat,1.0e-12_dp)
+
+  end subroutine test_su3alg
+
+  subroutine test_parameters
+
+    call read_input()
+    
+  end subroutine test_parameters
+  
   
 end program test

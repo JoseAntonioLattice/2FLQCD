@@ -2,7 +2,7 @@ OBJDIR=../../build/obj
 MODDIR=../../build/mod
 FFLAGS = -I$(OBJDIR) -J$(MODDIR)
 
-SRCS = hybridMC.f90
+SRCS = gauge.f90
 OBJS = $(patsubst %.f90,$(OBJDIR)/%.o,$(SRCS))
 
 all: $(OBJS)

@@ -54,17 +54,26 @@ contains
     character(*), intent(in) :: name
     complex(dp), intent(in) :: measured(:,:), expected(size(measured(:,1)),size(measured(1,:)))
     real(dp), intent(in) :: tol
+    logical, dimension(size(measured(:,1)),size(measured(1,:))) :: condition
     integer :: n, m, i, j
 
     n = size(measured(:,1))
     m = size(measured(1,:))
-
-    do i = 1, n
-       do j = 1, m
-          call assert_equal_complex(name,measured(i,j), expected(i,j),tol)
+    condition = abs(real(measured - expected)) < tol .and. abs(aimag(measured - expected)) < tol
+    if( all(condition) ) then
+       print"(2a)", " [PASS] : ", name
+    else
+       print"(2a)", " [FAIL] : ", name
+       do i = 1, n
+          do j = 1, m
+             if(condition(i,j) .eqv. .false.) &
+                  print"(4x,a,i0,a,i0,a,2ES12.4,a,2ES12.4,a,ES12.4)", &
+                  "(",i,",",j,") Expected: ", expected(i,j), " Measured: ", measured(i,j), " tol = ", tol
+             
+          end do
        end do
-    end do
-    
+    end if
+
     
   end subroutine assert_Equal_complex_matrix
   
@@ -175,62 +184,53 @@ contains
     integer :: mu, nu, i, j
     type(matrix4x4) :: product
     logical :: condition
+    complex(dp) :: delta(4,4)
+    character(99) :: str
     
-    call create_kronecker_delta()
+    call create_kronecker_delta(delta,4)
     call create_gamma_matrices()
     
     do mu = 1, 4
        do nu = 1, 4
-          product = gamma(mu)*gamma(nu) + gamma(nu)*gamma(mu)
-          print*, "mu = ",mu, "nu = ", nu
-          do i = 1, 4
-             do j = 1, 4
-                call assert_close("{gamma_mu,gamma_nu}", real(product%mat(i,j)),2*delta(mu,nu)*delta(i,j), 1.0E-12_dp) 
-             end do
-          end do
+          product = gamma(mu)*gamma(nu) + gamma(nu)*gamma(mu)          
+          write(str,"(a,i0,a,i0,a,2i0)") "{gamma_",mu,",gamma_",nu,"} = delta_",mu,nu
+          call assert_equal_complex_matrix(trim(str), product%mat,2*delta(mu,nu)*delta, 1.0E-12_dp) 
        end do
     end do
     
   end subroutine test_gamma
 
   subroutine test_gamma5()
-    use su3facts,  gamma => dirac_matrix
     integer :: i, j
     type(matrix4x4) :: gamma5
 
     
-    call create_kronecker_delta()
     call create_gamma_matrices()
     gamma5 = gamma(1)*gamma(2)*gamma(3)*gamma(4) 
-    do i = 1, 4
-       do j = 1, 4
-          call assert_close("gamma5 real", real(gamma(5)%mat(i,j)), real(gamma5%mat(i,j)),1.0E-12_dp)
-          call assert_close("gamma5 imag",aimag(gamma(5)%mat(i,j)),aimag(gamma5%mat(i,j)),1.0E-12_dp)
-       end do
-    end do
+    call assert_equal_complex_matrix("gamma5", gamma(5)%mat,gamma5%mat,1.0E-12_dp)
+         
   end subroutine test_gamma5
 
   subroutine test_sum_4x4matrices()
     type(matrix4x4) :: A, B, C
     integer :: i, j
-    call create_kronecker_delta()
-
+    complex(dp) :: delta(4,4)
+    
+    call create_kronecker_delta(delta,4)
+   
     A%mat = delta
     B%mat = delta
     C = A + B
 
-    do i = 1, 4
-       do j = 1, 4
-          call assert_close("A+B",real(C%mat(i,j)),2.0_dp*delta(i,j),1.0E-12_dp)
-       end do
-    end do
-        
+    call assert_equal_complex_matrix("A+B",C%mat,2*delta,1.0e-12_dp)
   end subroutine test_sum_4x4matrices
 
   subroutine test_substraction_4x4matrices()
     type(matrix4x4) :: A, B, C, D
     integer :: i, j
-    call create_kronecker_delta()
+    complex(dp) :: delta(4,4)
+    
+    call create_kronecker_delta(delta,4)
 
     A%mat = delta
     B%mat = delta
@@ -265,23 +265,34 @@ contains
     type(matrix3x3) :: U(n,n,n,n,n)
     complex(dp) :: D(3,3)
     integer :: i,j,k,l,m
+    logical :: condition(n,n,n,n,n)
+    real(dp) :: tol = 1.0e-12_dp
+    character(99) :: str
 
-    call create_kronecker_delta()
+   
     call cold_start(U,[n,n,n,n,n])
-
+    U(1,2,3,4,4)%mat = 2.0_dp
+    print*, "Cold start"
     do i = 1, n
        do j = 1, n
           do k = 1, n
              do l = 1,  n
                 do m = 1, n
-                   D = U(i,j,k,l,m)%mat
-                   call assert_equal_complex_matrix("cold start",D,delta_3x3,1.0E-12_dp)
+                   condition(i,j,k,l,m) = all(abs( real(U(i,j,k,l,m)%mat - delta_3x3)) < tol &
+                   .and. abs(aimag(U(i,j,k,l,m)%mat - delta_3x3)) < tol)
+                   if(.not.condition(i,j,k,l,m)) then
+                      D = U(i,j,k,l,m)%mat
+                      write(str,"(5(a,i0),a)") "x = (",i,",",j,",",k,",",l,",", m,")"
+                      call assert_equal_complex_matrix(trim(str),D,delta_3x3,tol)
+                   end if
                 end do
              end do
           end do
        end do
     end do
-    
+    if(all(condition)) then
+       print*, "  [PASS]  : cold start"
+    end if
   end subroutine test_cold_start
 
   subroutine test_su3_links()
@@ -289,7 +300,7 @@ contains
     type(su3) :: U, V, W
     complex(dp) :: D(3,3), t
 
-    call create_kronecker_delta
+    
     D = delta_3x3
     call U%init()
     call V%init
@@ -309,31 +320,32 @@ contains
     call random_number(r)
     r(1:5) = 0.0_dp
     call create_gellmann_matrices()
-    call create_kronecker_delta()
+    
     call U%init_su3(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
     
     V = U*U%dagger()
 
-    call assert_equal_complex_matrix("unitarity su3",V%mat,delta_3x3,1.0e-12_dp)
-    
+    print*, "Test su(3) unitarity"
+    call assert_equal_complex_matrix("UU^dagger = 1",V%mat,delta_3x3,1.0e-12_dp)
+    call assert_equal_complex("det(U) = 1",determinant(U%mat),(1.0_dp,0.0_dp),1.0e-12_dp)
     
   end subroutine test_unitarity
 
   subroutine test_gellmann_matrices
     integer :: i, j
-    complex(dp) :: r
+    complex(dp) :: delta(8,8), trace(8,8)
+    logical :: condition(8,8)
+
     
     call create_gellmann_matrices()
+    call create_kronecker_delta(delta,8)
     do i = 1, 8
        do j = 1, 8
-          if( i == j )then
-             r = (2.0_dp,0.0_dp)
-          else
-             r = (0.0_dp,0.0_dp)
-          end if
-          call assert_equal_complex("tr(l_i l_j) = 2d_ij",tr(gellmann_matrix(i)*gellmann_matrix(j)),r,1.0e-12_dp)
+         trace(i,j) = tr(gellmann_matrix(i)*gellmann_matrix(j))
        end do
     end do
+
+    call assert_equal_complex_matrix("tr(l_i l_j) = 2d_ij",trace,2*delta,1.0e-12_dp)
     
   end subroutine test_gellmann_matrices
 

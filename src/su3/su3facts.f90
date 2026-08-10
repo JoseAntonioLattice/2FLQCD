@@ -32,9 +32,11 @@ module su3facts
 
   type(matrix3x3) :: gellmann_matrix(8)
   type(matrix4x4) :: dirac_matrix(5)
-  real(dp), dimension(4,4) :: delta
-  complex(dp), dimension(3,3) :: delta_3x3
-
+  complex(dp), dimension(3,3) :: delta_3x3 = &
+  reshape([(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp),&
+           (0.0_dp,0.0_dp),(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),&
+           (0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(1.0_dp,0.0_dp)],[3,3])
+                                           
 
   interface dagger
      module procedure :: dagger_mat3x3
@@ -299,17 +301,16 @@ contains
   
   
   
-  subroutine create_kronecker_delta()
-    delta = 0.0_dp
-    delta(1,1) = 1.0_dp
-    delta(2,2) = 1.0_dp
-    delta(3,3) = 1.0_dp
-    delta(4,4) = 1.0_dp
-
-    delta_3x3 = 0.0_dp
-    delta_3x3(1,1) = 1.0_dp
-    delta_3x3(2,2) = 1.0_dp
-    delta_3x3(3,3) = 1.0_dp
+  subroutine create_kronecker_delta(delta,n)
+    integer, intent(in) :: n
+    complex(dp) :: delta(n,n)
+    integer :: k
+    
+    delta = (0.0_dp,0.0_dp)
+    do k = 1, n
+       delta(k,k) = (1.0_dp,0.0_dp)
+    end do
+    
     
   end subroutine create_kronecker_delta
 

@@ -22,6 +22,14 @@ module su3facts
      procedure :: init_su3
   end type su3
 
+  type, extends(matrix3x3) :: su3alg
+     real(dp) :: r(8)
+   contains
+     procedure :: init_su3alg
+     procedure :: tr => tr_su3alg
+     procedure :: dagger => dagger_su3alg
+  end type su3alg
+
   type(matrix3x3) :: gellmann_matrix(8)
   type(matrix4x4) :: dirac_matrix(5)
   real(dp), dimension(4,4) :: delta
@@ -31,18 +39,21 @@ module su3facts
   interface dagger
      module procedure :: dagger_mat3x3
      module procedure :: dagger_su3
+     module procedure :: dagger_su3alg
   end interface dagger
   
   
   interface tr
      module procedure :: tr_mat3x3
      module procedure :: tr_su3
+     module procedure :: tr_su3alg
   end interface tr
   
   interface operator(+)
      module procedure :: matrix4x4_sum
      module procedure :: matrix3x3_sum
      module procedure :: su3_sum
+     module procedure :: su3alg_sum
   end interface operator(+)
   
   interface operator(-)
@@ -52,6 +63,8 @@ module su3facts
      module procedure :: matrix3x3_substraction2
      module procedure :: su3_substraction
      module procedure :: su3_substraction2
+     module procedure :: su3alg_substraction
+     module procedure :: su3alg_substraction2
   end interface operator(-)
   
   interface operator(*)
@@ -70,6 +83,11 @@ module su3facts
      module procedure :: su3_product_scalar_real_right
      module procedure :: su3_product_scalar_complex_left
      module procedure :: su3_product_scalar_complex_right
+     module procedure :: su3alg_product
+     module procedure :: su3alg_product_scalar_real_left
+     module procedure :: su3alg_product_scalar_real_right
+     module procedure :: su3alg_product_scalar_complex_left
+     module procedure :: su3alg_product_scalar_complex_right
   end interface operator(*)
   
 contains
@@ -269,6 +287,16 @@ contains
     class(su3), intent(in) :: U
     tr_su3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
   end function tr_su3
+
+
+
+
+
+
+ 
+
+  
+  
   
   
   subroutine create_kronecker_delta()
@@ -342,7 +370,7 @@ contains
   end subroutine create_gellmann_matrices
   
   ! Create dirac_matrix matrices in Euclidean space-time
-  subroutine create_dirac_matrix_matrices()
+  subroutine create_gamma_matrices()
     integer :: mu, m, n
     do mu = 1, 5
        do n = 1, 4
@@ -397,9 +425,9 @@ contains
     dirac_matrix(5)%mat(2,2) = 1.0_dp
     dirac_matrix(5)%mat(3,3) = -1.0_dp
     dirac_matrix(5)%mat(4,4) = -1.0_dp
-  end subroutine create_dirac_matrix_matrices
+  end subroutine create_gamma_matrices
 
-  pure function my_exp(X) result(expX)
+  pure elemental function my_exp(X) result(expX)
     ! Computes exp(X) for X in the su(3) Lie algebra using Cayley-Hamilton theorem.
     !
     ! By Cayley-Hamilton, any X in su(3) (traceless, antihermitian) satisfies:
@@ -416,8 +444,8 @@ contains
     !   q2_new = q1_old
     !   q1_new = q0_old - t * q2_old
     !   q0_new = 1/(i+1)! + d * q2_old
-    type(su3), intent(in) :: X
-    type(su3) :: expX, B, d3x3
+    type(su3alg), intent(in) :: X
+    type(su3alg) :: expX, B, d3x3
     integer, parameter :: K = 20
     complex(dp) :: q0, q1, q2, q0old, q1old, q2old
     complex(dp) :: d, t, trB
@@ -465,14 +493,101 @@ contains
   elemental subroutine init_su3(U,r1,r2,r3,r4,r5,r6,r7,r8)
     class(su3), intent(inout) :: U
     real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
-    type(su3) :: A 
+    type(su3alg) :: A
+    type(matrix3x3) :: B
     
-    A%mat = r1*gellmann_matrix(1)%mat+r2*gellmann_matrix(2)%mat+r3*gellmann_matrix(3)%mat
-    A%mat = r4*gellmann_matrix(4)%mat+r5*gellmann_matrix(5)%mat+r6*gellmann_matrix(6)%mat
-    A%mat = r7*gellmann_matrix(7)%mat+r8*gellmann_matrix(8)%mat
+    B =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
+    B = B + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
+    B = B + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
+    A%mat = B%mat
     A = my_exp(0.5_dp*i*A)
     U%mat = A%mat
     
   end subroutine init_su3
+
+  elemental subroutine init_su3alg(U,r1,r2,r3,r4,r5,r6,r7,r8)
+    class(su3alg), intent(inout) :: U
+    real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
+    type(su3alg) :: A
+    type(matrix3x3) :: B
+    
+    B =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
+    B = B + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
+    B = B + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
+    U%mat = B%mat 
+    
+  end subroutine init_su3alg
+
+
+
+
+
+
+  
+  
+  pure function su3alg_sum(A,B)
+    type(su3alg), intent(in) :: A, B
+    type(su3alg) :: su3alg_sum
+    su3alg_sum%mat = A%mat+ B%mat
+  end function su3alg_sum
+
+  pure function su3alg_substraction(A,B)
+    type(su3alg), intent(in) :: A, B
+    type(su3alg) :: su3alg_substraction
+    su3alg_substraction%mat = A%mat- B%mat
+  end function su3alg_substraction
+  
+  pure function su3alg_substraction2(A)
+    type(su3alg), intent(in) :: A
+    type(su3alg) :: su3alg_substraction2
+    su3alg_substraction2%mat = -A%mat
+  end function su3alg_substraction2
+  
+  pure function su3alg_product(A,B)
+    type(su3alg), intent(in) :: A, B
+    type(su3alg) :: su3alg_product
+    su3alg_product%mat = matmul(A%mat,B%mat)
+  end function su3alg_product
+  
+  pure function su3alg_product_scalar_real_left(a,B)
+    type(su3alg), intent(in) :: B
+    real(dp), intent(in) :: a
+    type(su3alg) :: su3alg_product_scalar_real_left
+    su3alg_product_scalar_real_left%mat = a*B%mat
+  end function su3alg_product_scalar_real_left
+
+  pure function su3alg_product_scalar_real_right(B,a)
+    type(su3alg), intent(in) :: B
+    real(dp), intent(in) :: a
+    type(su3alg) :: su3alg_product_scalar_real_right
+    su3alg_product_scalar_real_right%mat = B%mat*a
+  end function su3alg_product_scalar_real_right
+
+  pure function su3alg_product_scalar_complex_left(a,B)
+    type(su3alg), intent(in) :: B
+    complex(dp), intent(in) :: a
+    type(su3alg) :: su3alg_product_scalar_complex_left
+    su3alg_product_scalar_complex_left%mat = a*B%mat
+  end function su3alg_product_scalar_complex_left
+
+  pure function su3alg_product_scalar_complex_right(B,a)
+    type(su3alg), intent(in) :: B
+    complex(dp), intent(in) :: a
+    type(su3alg) :: su3alg_product_scalar_complex_right
+    su3alg_product_scalar_complex_right%mat = B%mat*a
+  end function su3alg_product_scalar_complex_right
+
+  pure function dagger_su3alg(U)
+    type(su3alg) :: dagger_su3alg
+    class(su3alg), intent(in) :: U
+    dagger_su3alg%mat = transpose(conjg(U%mat))
+  end function dagger_su3alg
+
+  pure function tr_su3alg(U)
+    complex(dp) :: tr_su3alg
+    class(su3alg), intent(in) :: U
+    tr_su3alg = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
+  end function tr_su3alg
+
   
 end module su3facts

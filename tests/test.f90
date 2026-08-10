@@ -7,21 +7,21 @@ program test
   integer, parameter :: dp = 8
 
   
-  !call test_mean_zero()
-  !call test_variance_one()
-  !call test_gamma()
-  !call test_gamma5()
-  !call test_pbc()
+  call test_mean_zero()
+  call test_variance_one()
+  call test_gamma()
+  call test_gamma5()
+  call test_pbc()
 
-  !call test_sum_4x4matrices
-  !call test_substraction_4x4matrices()
+  call test_sum_4x4matrices
+  call test_substraction_4x4matrices()
 
-  !call test_cold_start()
+  call test_cold_start()
 
-  !call test_su3_links
+  call test_su3_links
 
-  !call test_gellmann_matrices
-  !call test_unitarity()
+  call test_gellmann_matrices
+  call test_unitarity()
 
   call test_assert_matrix()
   
@@ -307,6 +307,7 @@ contains
     real(dp) :: r(8)
 
     call random_number(r)
+    r(1:5) = 0.0_dp
     call create_gellmann_matrices()
     call create_kronecker_delta()
     call U%init_su3(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))

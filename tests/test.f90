@@ -8,6 +8,8 @@ program test
   implicit none
   integer, parameter :: dp = 8
 
+
+  call test_parameters
   
   call test_mean_zero()
   call test_variance_one()
@@ -31,7 +33,10 @@ program test
   call test_TA
   call test_su3alg
 
-  call test_parameters
+  
+
+
+  call test_exp_su3alg
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -257,7 +262,7 @@ contains
     integer :: L(4),p(4),m(4), i
     
     L = [16,15,14,13]
-    call init_arrays(L)
+    call set_pbc(L)
     
     do i = 1, 4
        p = ip(L,i)
@@ -270,27 +275,27 @@ contains
 
   subroutine test_cold_start()
     integer, parameter :: n = 4
-    type(matrix3x3) :: U(n,n,n,n,n)
+    type(matrix3x3) :: U(4,Lt,Lx,Ly,Lz)
     complex(dp) :: D(3,3)
-    integer :: i,j,k,l,m
-    logical :: condition(n,n,n,n,n)
+    integer :: t, x, y, z, mu
+    logical :: condition(4,Lt,Lx,Ly,Lz)
     real(dp) :: tol = 1.0e-12_dp
     character(99) :: str
 
    
-    call cold_start(U,[n,n,n,n,n])
+    call cold_start(U)
     
-    print*, "Cold start"
-    do i = 1, n
-       do j = 1, n
-          do k = 1, n
-             do l = 1,  n
-                do m = 1, n
-                   condition(i,j,k,l,m) = all(abs( real(U(i,j,k,l,m)%mat - delta_3x3)) < tol &
-                   .and. abs(aimag(U(i,j,k,l,m)%mat - delta_3x3)) < tol)
-                   if(.not.condition(i,j,k,l,m)) then
-                      D = U(i,j,k,l,m)%mat
-                      write(str,"(5(a,i0),a)") "x = (",i,",",j,",",k,",",l,",", m,")"
+    print*, "Test cold start"
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do mu = 1, 4
+                   condition(mu,t,x,y,z) = all(abs( real(U(mu,t,x,y,z)%mat - delta_3x3)) < tol &
+                   .and. abs(aimag(U(mu,t,x,y,z)%mat - delta_3x3)) < tol)
+                   if(.not.condition(mu,t,x,y,z)) then
+                      D = U(mu,t,x,y,z)%mat
+                      write(str,"(5(a,i0))") "x = (",t,",",x,",",y,",",z,"), mu = ", mu
                       call assert_equal_complex_matrix(trim(str),D,delta_3x3,tol)
                    end if
                 end do
@@ -381,7 +386,7 @@ contains
 
     call omega%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
 
-    call init_arrays([n,n,n,n])
+    call set_pbc([n,n,n,n])
     call gauge_transformation(U,omega)
 
     condition = .true.
@@ -485,7 +490,6 @@ contains
     real(dp) :: r(8)
     type(su3alg) :: P, Pd
 
-
     call random_number(r)
     
     call P%init_su3alg(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
@@ -502,5 +506,53 @@ contains
     
   end subroutine test_parameters
   
+
+  subroutine test_exp_su3alg()
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    real(dp), dimension(4,Lx,Lt,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8
+    real(dp), parameter :: tol = 1.0e-12_dp
+    integer :: t,x,y,z,mu
+    logical, dimension(4,Lt,Lx,Lt,Lz) :: condition
+    complex(dp) :: det
+    character(99) :: str
+
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+
+    call U%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
+
+    print*, "Test exp of su(3) algebra element"
+
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do mu = 1, 4
+                   det = determinant(U(mu,t,x,y,z)%mat) 
+                   condition(mu,t,x,y,z) = ( abs(real(det - (1.0_dp,0.0_dp))) < tol ) .and. ( abs(aimag(det)) < tol ) 
+                   if(.not.condition(mu,t,x,y,z)) then
+                      write(str,"(5(a,i0),a)") "  [FAIL] : det(exp(i*A/2)) /= 1 at x = (",t,",",x,",",y,",",z,"), mu = (", mu,")"
+                      call assert_equal_complex(trim(str),det,(1.0_dp,0.0_dp),tol)
+                   end if
+                end do
+             end do
+          end do
+       end do
+    end do
+
+    if(all(condition)) then
+       print*, "  [PASS]  : det(exp(i*A/2)) = 1"
+    end if
+
+    
+    
+  end subroutine test_exp_su3alg
+
   
 end program test

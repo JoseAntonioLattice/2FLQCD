@@ -13,7 +13,7 @@ module hybridMC
 contains
   
   subroutine leapfrog(U,beta)
-    type(su3), intent(in) :: U(4,Lt,Lx,Ly,Lz)
+    type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
     real(dp), intent(in) :: beta
     type(su3) :: Unew(4,Lt,Lx,Ly,Lz) 
     integer :: t
@@ -21,7 +21,11 @@ contains
     real(dp), dimension(4,Lt,Lx,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12, &
          r13,r14,r15,r16
     real(dp), dimension(4,Lt,Lx,Ly,Lz) :: g1,g2,g3,g4,g5,g6,g7,g8
-    integer :: k 
+    integer :: k
+    real(dp) :: DS, r
+
+
+    
     Unew = U
     !Create the field chi with Gaussian distribution
     !call random_number(r1)
@@ -63,16 +67,23 @@ contains
     Pnew = P - 0.5*epsilon * F(Unew,beta)
     
     do k = 1, N - 1
-       Unew = my_exp( i*epsilon*Pnew)*Unew
+       Unew = exp( i*epsilon*Pnew)*Unew
        Pnew = Pnew - epsilon * F(Unew,beta)
     end do
-    Unew = my_exp(i*epsilon*Pnew)*Unew
+    Unew = exp(i*epsilon*Pnew)*Unew
     Pnew = Pnew - 0.5*epsilon*F(Unew,beta)
+
+    DS = sum(tr(P*P - Pnew*Pnew)) - DeltaS(U,Unew,beta)
+
+    if( r <= exp(DS)) U = Unew
+    
   end subroutine leapfrog
 
-  !subroutine hmc()
-  !  call leapfrog()
-  !end subroutine hmc
+  subroutine hmc(U,beta)
+    type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+    real(dp), intent(in) :: beta
+    call leapfrog(U,beta)
+  end subroutine hmc
 
 
   function F(U,beta)!,chi)
@@ -93,8 +104,32 @@ contains
        end do
     end do
     
-    
   end function F
+
+  function DeltaS(U,Unew,beta)
+    type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U, Unew
+    real(dp), intent(in) :: beta
+    integer :: t,x,y,z,mu, nu
+    real(dp) :: DeltaS
+
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do mu = 1, 3
+                   do nu = mu+1, 4
+                      DeltaS = real(tr(plaquette(U,[t,x,y,z],mu,nu) - plaquette(Unew,[t,x,y,z],mu,nu)))
+                   end do
+                end do
+             end do
+          end do
+       end do
+    end do
+
+    DeltaS = beta/3.0_dp * DeltaS
+    
+    
+  end function DeltaS
 
   
 end module hybridMC

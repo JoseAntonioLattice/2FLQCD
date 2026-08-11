@@ -5,7 +5,8 @@ module parameters
   integer :: Lt,Lx,Ly,Lz
   integer :: N
   real(8) :: epsilon
-  namelist /lattice/ L, N, epsilon 
+  integer :: N_measurements, N_thermalization, N_skip
+  namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip
 
 contains
 

@@ -39,12 +39,15 @@ module su3facts
            (0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(1.0_dp,0.0_dp)],[3,3])
                                            
 
+  interface exp
+     module procedure :: exp_su3alg
+  end interface exp
+  
   interface dagger
      module procedure :: dagger_mat3x3
      module procedure :: dagger_su3
      module procedure :: dagger_su3alg
-  end interface dagger
-  
+  end interface dagger  
   
   interface tr
      module procedure :: tr_mat3x3
@@ -210,13 +213,13 @@ contains
     U%mat = 0.0_dp
   end subroutine zero
   
-  pure function dagger_mat3x3(U)
+  elemental pure function dagger_mat3x3(U)
     type(matrix3x3) :: dagger_mat3x3
     type(matrix3x3), intent(in) :: U
     dagger_mat3x3%mat = transpose(conjg(U%mat))
   end function dagger_mat3x3
 
-  pure function tr_mat3x3(U)
+  elemental pure function tr_mat3x3(U)
     complex(dp) :: tr_mat3x3
     type(matrix3x3), intent(in) :: U
     tr_mat3x3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
@@ -280,13 +283,13 @@ contains
     normalize%mat = delta_3x3
   end function normalize
 
-  pure function dagger_su3(U)
+  elemental pure function dagger_su3(U)
     type(su3) :: dagger_su3
     class(su3), intent(in) :: U
     dagger_su3%mat = transpose(conjg(U%mat))
   end function dagger_su3
 
-  pure function tr_su3(U)
+  elemental pure function tr_su3(U)
     complex(dp) :: tr_su3
     class(su3), intent(in) :: U
     tr_su3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
@@ -430,7 +433,7 @@ contains
     dirac_matrix(5)%mat(4,4) = -1.0_dp
   end subroutine create_gamma_matrices
 
-  pure elemental function my_exp(X) result(expX)
+  pure elemental function exp_su3alg(X) result(expX)
     ! Computes exp(X) for X in the su(3) Lie algebra using Cayley-Hamilton theorem.
     !
     ! By Cayley-Hamilton, any X in su(3) (traceless, antihermitian) satisfies:
@@ -482,7 +485,7 @@ contains
 
     expX%mat = q0*d3x3%mat + q1*X%mat + q2*B%mat
 
-  end function my_exp
+  end function exp_su3alg
   
   pure function determinant(a) result(det)
     complex(dp), dimension(3,3), intent(in) :: a
@@ -502,7 +505,7 @@ contains
     A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
     A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
     A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    C = my_exp(0.5_dp*i*A)
+    C = exp(0.5_dp*i*A)
     U%mat = C%mat
     
   end subroutine init_su3
@@ -571,13 +574,13 @@ contains
     su3alg_product_scalar_complex_right%mat = B%mat*a
   end function su3alg_product_scalar_complex_right
 
-  pure function dagger_su3alg(U)
+  elemental pure function dagger_su3alg(U)
     type(su3alg) :: dagger_su3alg
     class(su3alg), intent(in) :: U
     dagger_su3alg%mat = transpose(conjg(U%mat))
   end function dagger_su3alg
 
-  pure function tr_su3alg(U)
+  elemental pure function tr_su3alg(U)
     complex(dp) :: tr_su3alg
     class(su3alg), intent(in) :: U
     tr_su3alg = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
@@ -592,7 +595,7 @@ contains
     TA%mat = 0.5_dp*A%mat - (1/6.0_dp)*tr(A)*delta_3x3 
   end function TA
 
-  function product_hybrid(A,B)
+  elemental function product_hybrid(A,B)
     type(matrix3x3) :: product_hybrid
     type(su3), intent(in) :: A
     type(matrix3x3), intent(in) :: B

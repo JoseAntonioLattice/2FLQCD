@@ -588,7 +588,7 @@ contains
     integer, dimension(4) :: x2, x3
     type(matrix3x3) :: A
     A = W - dagger(W)
-    TA%mat = 0.5_dp*A%mat - 0.25_dp*tr(A)*delta_3x3 
+    TA%mat = 0.5_dp*A%mat - (1/6.0_dp)*tr(A)*delta_3x3 
   end function TA
 
   function product_hybrid(A,B)

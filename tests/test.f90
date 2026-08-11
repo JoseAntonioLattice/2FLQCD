@@ -450,10 +450,7 @@ contains
     call random_number(r6)
     call random_number(r7)
     call random_number(r8)
-    r4 = 0.0_dp
-    r5 = 0.0_dp
-    r6 = 0.0_dp
-    r7 = 0.0_dp
+  
     r8 = 0.0_dp
     call W2%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
 

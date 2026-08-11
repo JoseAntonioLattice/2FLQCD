@@ -451,7 +451,6 @@ contains
     call random_number(r7)
     call random_number(r8)
   
-    r8 = 0.0_dp
     call W2%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
 
     call random_number(r1)

@@ -498,6 +498,7 @@ contains
     real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
     type(su3alg) :: A
     type(su3) :: C
+    
     A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
     A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
     A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
@@ -514,7 +515,7 @@ contains
     A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
     A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
     A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    U%mat = A%mat 
+    U%mat = 0.5_dp*A%mat 
     
   end subroutine init_su3alg
   

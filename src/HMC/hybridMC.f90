@@ -3,6 +3,7 @@ module hybridMC
   use random
   !use dirac
   use su3facts
+  use gauge,  Zeta => Z
   implicit none
   
   integer, parameter :: dp = 8
@@ -59,13 +60,13 @@ contains
 
     call P%init_su3alg(g1,g2,g3,g4,g5,g6,g7,g8)
     
-    Pnew = P !- 0.5*epsilon * F(Unew,beta)
+    Pnew = P - 0.5*epsilon * F(Unew,beta)
     
     do k = 1, N - 1
-       Unew = my_exp(  Pnew)
+       Unew = my_exp( i*epsilon*Pnew)*Unew
        Pnew = Pnew - epsilon * F(Unew,beta)
     end do
-    Unew = my_exp(Pnew)*Unew
+    Unew = my_exp(i*epsilon*Pnew)*Unew
     Pnew = Pnew - 0.5*epsilon*F(Unew,beta)
   end subroutine leapfrog
 
@@ -75,11 +76,9 @@ contains
 
 
   function F(U,beta)!,chi)
-    type(su3alg), dimension(4,Lt,LX,Ly,Lz) :: F
+    type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: F
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
     real(dp), intent(in) :: beta
-    !complex(dp), dimension(Lt,LX,Ly,Lz), intent(in) :: chi
-    type(su3alg) :: Zeta
     integer :: t,x,y,z,mu
     
     do t = 1, Lt
@@ -87,7 +86,7 @@ contains
           do y = 1, Ly
              do z = 1, Lz
                 do mu = 1, 4
-                   !F(mu,t,x,y,z) = -0.25_dp*beta*Z(U,[t,x,y,z],mu)
+                   F(mu,t,x,y,z) = -beta/6.0_dp * Zeta(U,[t,x,y,z],mu)
                 end do
              end do
           end do

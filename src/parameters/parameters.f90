@@ -1,12 +1,18 @@
 module parameters
-
+  
+  implicit  none
+  integer, parameter, private :: dp = 8
   
   integer, dimension(4) :: L
   integer :: Lt,Lx,Ly,Lz
   integer :: N
   real(8) :: epsilon
   integer :: N_measurements, N_thermalization, N_skip
-  namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip
+  real(dp):: betai, betaf
+  integer :: nbeta
+  character(50):: algorithm
+  namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip, &
+       betai, betaf, nbeta, algorithm
 
 contains
 

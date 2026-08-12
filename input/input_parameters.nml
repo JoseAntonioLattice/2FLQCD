@@ -1,8 +1,12 @@
 &lattice
-L = 10,10,10,10
+L = 4,4,4,4
 N = 10
 epsilon = 0.1
 N_thermalization = 100
 N_measurements = 100
-N_skip = 10
+N_skip = 5
+betai = 0.1
+betaf = 10.0
+nbeta = 20
+algorithm = "hmc"
 /

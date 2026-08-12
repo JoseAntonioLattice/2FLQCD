@@ -1,0 +1,307 @@
+module lua
+  use parameters, only : Lt,Lx,Ly,Lz
+  use su3facts
+  use gauge
+  implicit none
+  integer, parameter, private :: dp = 8
+  
+  contains
+
+    subroutine metropolis(U,x,mu,beta)
+      type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+      integer, intent(in) :: x(4), mu
+      real(dp), intent(in) :: beta
+      type(su3) :: Unew
+      real(dp) :: s, r(8), DS
+      type(matrix3x3) :: W
+
+      !call random_number(r)
+      call random_number(s)
+      !call Unew%init_su3(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
+      call create_biased_update(W)
+      W = Unew*W
+      Unew%mat = W%mat
+      DS = DeltaS(U,Unew,x,mu,beta)
+      if( s <= min(1.0_dp,exp(-DS))) U(mu,x(1),x(2),x(3),x(4)) = Unew
+      
+    end subroutine metropolis
+
+
+    function deltaS(U,Unew,x,mu,beta)
+      type(su3), intent(in) :: U(4,Lt,Lx,Ly,Lz), Unew
+      integer, intent(in) :: x(4), mu
+      real(dp), intent(in) :: beta
+      real(dp) :: deltaS
+            
+      deltaS = -beta/3.0_dp*real(tr( (Unew-U(mu,x(1),x(2),x(3),x(4)))*dagger(staples(U,x,mu)) ))
+    end function deltaS
+
+    subroutine sweeps_metropolis(U,beta)
+      type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+      real(dp), intent(in) :: beta
+      integer :: t,x,y,z, mu
+
+      do t = 1, Lt
+         do x = 1, Lx
+            do y = 1, Ly
+               do z = 1, Lz
+                  do mu = 1, 4
+                     call metropolis(U,[t,x,y,z],mu,beta)
+                  end do
+               end do
+            end do
+         end do
+      end do
+            
+    end subroutine sweeps_metropolis
+
+    subroutine sweeps_heatbath(U,beta)
+      type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+      real(dp), intent(in) :: beta
+      integer :: t,x,y,z, mu
+
+      do t = 1, Lt
+         do x = 1, Lx
+            do y = 1, Ly
+               do z = 1, Lz
+                  do mu = 1, 4
+                     call heatbath(U,[t,x,y,z],mu,beta)
+                  end do
+               end do
+            end do
+         end do
+      end do
+            
+    end subroutine sweeps_heatbath
+
+
+    subroutine heatbath(U,x,mu,beta)
+    type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+    integer, intent(in) :: x(4)
+    integer, intent(in) :: mu
+    real(dp), intent(in) :: beta
+    type(matrix3x3) :: R, S, T, W, A, B, C
+    complex(dp), dimension(2,2) :: R2, S2, T2, W2
+
+    
+    A = dagger(staples(U,x,mu))
+    W = U(mu,x(1),x(2),x(3),x(4)) * A
+
+    W2 = turn_2x2(W,1)
+    call heatbath_SU2(W2,R2,2*beta/3)
+    R = turn_to_SU3(R2,1)
+    call heatbath_SU2(turn_2x2(R*W,2),S2,2*beta/3)
+    S = turn_to_SU3(S2,2)
+    call heatbath_SU2(turn_2x2(S*R*W,3),T2,2*beta/3)
+    T = turn_to_SU3(T2,3)
+    B%mat = U(mu,x(1),x(2),x(3),x(4))%mat
+    C = T * S * R * B
+    U(mu,x(1),x(2),x(3),x(4))%mat = C%mat
+  end subroutine heatbath
+
+  subroutine heatbath_SU2(W,R,beta)
+    complex(dp), dimension(2,2), intent(in)  :: W
+    complex(dp), dimension(2,2), intent(out) :: R
+    real(dp), intent(in) :: beta
+
+    complex(dp), dimension(2,2) :: V
+
+    real(dp) :: k, a, b, s, u, x0,x(3)
+
+    logical :: accept
+    
+    R = turn_to_SU2_matrix(W)
+    k = sqrt(det2(R))
+
+    V = R/k
+
+    a = exp(-2*k*beta)
+    b = 1.0_dp
+
+    accept = .false.
+    do while( accept .eqv. .false. )
+       u = random_uniform(a,b)
+       x0 = 1.0_dp + log(u)/(beta*k)
+       call random_number(s)
+       if( s > 1.0_dp - sqrt(1.0_dp - x0**2)) accept = .true.
+    end do
+    
+    x = sqrt(1.0_dp - x0**2) * random_vector()
+
+    R = SU2_matrix(cmplx(x0,x(1),dp),cmplx(x(2),x(3),dp))
+
+    R = matmul(R,conjg(transpose(V)))
+    
+  end subroutine heatbath_SU2
+
+
+  function turn_2x2(A,n) result(X)
+    type(matrix3x3) :: A
+    integer, intent(in) :: n
+    complex(dp), dimension(2,2) :: X
+
+    select case(n)
+    case(1)
+       X(1,1) = A%mat(1,1)
+       X(1,2) = A%mat(1,2)
+       X(2,1) = A%mat(2,1)
+       X(2,2) = A%mat(2,2)
+    case(2)
+       X(1,1) = A%mat(1,1)
+       X(1,2) = A%mat(1,3)
+       X(2,1) = A%mat(3,1)
+       X(2,2) = A%mat(3,3)
+    case(3)
+       X(1,1) = A%mat(2,2)
+       X(1,2) = A%mat(2,3)
+       X(2,1) = A%mat(3,2)
+       X(2,2) = A%mat(3,3)
+    end select
+
+  
+  end function turn_2x2
+
+  function turn_to_SU2_matrix(M) result(X)
+    complex(dp), dimension(2,2), intent(in) :: M
+    complex(dp), dimension(2,2) :: X
+
+    complex(dp) :: a, b
+
+    a = 0.5 * ( M(1,1) + conjg(M(2,2)) )
+    b = 0.5 * ( M(1,2) - conjg(M(2,1)) )
+
+    X = SU2_matrix(a,b)
+  end function turn_to_SU2_matrix
+
+
+    function SU2_matrix(a,b) result(matrix)
+    complex(dp), intent(in)  :: a, b
+    complex(dp), dimension(2,2) :: matrix
+      matrix(1,1) = a
+      matrix(1,2) = b
+      matrix(2,1) = -conjg(b)
+      matrix(2,2) =  conjg(a)
+  end function SU2_matrix
+
+  
+  function turn_to_SU3(A,n) result(X)
+    complex(dp), dimension(2,2) :: A
+    integer :: n
+    type(matrix3x3) :: X
+
+    X%mat = 0.0_dp
+
+    select case(n)
+    case(1)
+       X%mat(1,1) = A(1,1)
+       X%mat(1,2) = A(1,2)
+       X%mat(2,1) = A(2,1)
+       X%mat(2,2) = A(2,2)
+       X%mat(3,3) = 1.0_dp
+    case(2)
+       X%mat(1,1) = A(1,1)
+       X%mat(1,3) = A(1,2)
+       X%mat(3,1) = A(2,1)
+       X%mat(3,3) = A(2,2)
+       X%mat(2,2) = 1.0_dp
+    case(3)
+       X%mat(2,2) = A(1,1)
+       X%mat(2,3) = A(1,2)
+       X%mat(3,2) = A(2,1)
+       X%mat(3,3) = A(2,2)
+       X%mat(1,1) = 1.0_dp
+    end select
+    
+  end function turn_to_SU3
+  
+  function det2(W)
+    complex(dp), dimension(2,2) :: W
+    real(dp) :: det2
+    
+    det2 = (W(1,1)%re)**2 + (W(1,1)%im)**2 + (W(1,2)%re)**2 + (W(1,2)%im)**2
+        
+  end function det2
+
+  function random_vector() result(y)
+    real(dp), parameter :: pi = acos(-1.0_dp)
+    real(dp), dimension(3) :: y
+    real(dp) :: r, n
+
+    call random_number(r)
+
+    
+    y(1) = random_uniform(-1.0_dp, 1.0_dp)
+    n = sqrt(1.0_dp - (y(1))**2)
+    y(2) = n * cos(2*pi*r)
+    y(3) = n * sin(2*pi*r)
+
+  end function random_vector
+
+  function random_uniform(a,b) result(y)
+    real(dp), intent(in) :: a, b
+    real(dp) :: y, r
+
+    call random_number(r)
+
+    y = a + r * ( b - a )
+
+  end function random_uniform
+
+    subroutine create_complex_numbers(a,b)
+    complex(dp), intent(out) :: a, b
+    real(dp), dimension(0:3) :: r, x
+    real(dp), parameter :: eps = 1.0_dp
+    real(dp) :: norm_r
+
+    call random_number(r)
+    r = r - 0.5_dp
+    norm_r = sqrt(r(1)**2 + r(2)**2 + r(3)**2)
+
+    x(1:3) = eps*r(1:3)/norm_r
+    x(0) = sgn(r(0)) * sqrt(1.0_dp - eps**2)
+
+    a = cmplx(x(0),x(1),dp)
+    b = cmplx(x(2),x(3),dp)
+
+  end subroutine create_complex_numbers
+
+  subroutine create_biased_update(X)
+    type(matrix3x3), intent(out) :: X
+    type(matrix3x3) :: R, S, T
+    complex(dp) :: a, b
+
+    R%mat = reshape([1.0_dp,0.0_dp,0.0_dp, 0.0_dp,1.0_dp,0.0_dp, 0.0_dp,0.0_dp,1.0_dp], [3,3])
+    S = R
+    T = R
+
+    call create_complex_numbers(a,b)
+    R%mat(1,1) = a; R%mat(1,2) = b; R%mat(2,1)= -conjg(b); R%mat(2,2) = conjg(a)
+
+    
+    call create_complex_numbers(a,b)
+    S%mat(1,1) = a; S%mat(1,3) = b; S%mat(3,1)= -conjg(b); S%mat(3,3) = conjg(a)
+
+    
+    call create_complex_numbers(a,b)
+    T%mat(2,2) = a; T%mat(2,3) = b; T%mat(3,2)= -conjg(b); T%mat(3,3) = conjg(a)
+
+    X = R * S * T
+    
+  end subroutine create_biased_update
+
+    pure function sgn(x)
+    real(dp), intent(in) :: x
+    integer :: sgn
+
+    if( x > 0.0_dp )then
+      sgn = 1
+    elseif( x < 0.0_dp)then
+      sgn = -1
+    else
+      sgn = 0
+    end if
+
+  end function sgn
+
+  
+end module lua

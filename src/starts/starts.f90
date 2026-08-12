@@ -25,9 +25,10 @@ contains
     call random_number(r6)
     call random_number(r7)
     call random_number(r8)
+
     
     call u%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
-    
+    !print*, U(1,1,1,1,1)%mat(1,1)
   end subroutine hot_start
   
 end module starts

@@ -6,9 +6,9 @@ module hybridMC
   use gauge,  Zeta => Z
   implicit none
   
-  integer, parameter :: dp = 8
-  real(dp), parameter :: pi = acos(-1.0_dp) 
-  complex(dp) :: i = (0.0_dp,1.0_dp)
+  integer, parameter, private :: dp = 8
+  real(dp), parameter, private :: pi = acos(-1.0_dp) 
+  complex(dp), parameter, private :: i = (0.0_dp,1.0_dp)
 
 contains
   
@@ -75,7 +75,8 @@ contains
 
     DS = sum(tr(P*P - Pnew*Pnew)) - DeltaS(U,Unew,beta)
 
-    if( r <= exp(DS)) U = Unew
+    call random_number(r)
+    if( r <= min(1.0_dp,exp(DS))) U = Unew
     
   end subroutine leapfrog
 
@@ -86,18 +87,20 @@ contains
   end subroutine hmc
 
 
-  function F(U,beta)!,chi)
+  function F(U,beta)
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: F
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
     real(dp), intent(in) :: beta
     integer :: t,x,y,z,mu
-    
+    type(matrix3x3) :: force
     do t = 1, Lt
        do x = 1, Lx
           do y = 1, Ly
              do z = 1, Lz
                 do mu = 1, 4
-                   F(mu,t,x,y,z) = -beta/6.0_dp * Zeta(U,[t,x,y,z],mu)
+                   force = U(mu,t,x,y,z)*dagger(staples(U,[t,x,y,z],mu))
+                   force = force - dagger(force)
+                   F(mu,t,x,y,z)%mat = -beta*i/12.0_dp * force%mat ! Zeta(U,[t,x,y,z],mu)
                 end do
              end do
           end do
@@ -111,14 +114,15 @@ contains
     real(dp), intent(in) :: beta
     integer :: t,x,y,z,mu, nu
     real(dp) :: DeltaS
-
+    
+    DeltaS = 0.0_dp
     do t = 1, Lt
        do x = 1, Lx
           do y = 1, Ly
              do z = 1, Lz
                 do mu = 1, 3
                    do nu = mu+1, 4
-                      DeltaS = real(tr(plaquette(U,[t,x,y,z],mu,nu) - plaquette(Unew,[t,x,y,z],mu,nu)))
+                      DeltaS = DeltaS + real(tr(plaquette(U,[t,x,y,z],mu,nu) - plaquette(Unew,[t,x,y,z],mu,nu)))
                    end do
                 end do
              end do

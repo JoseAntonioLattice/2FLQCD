@@ -37,7 +37,12 @@ module su3facts
   reshape([(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp),&
            (0.0_dp,0.0_dp),(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),&
            (0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(1.0_dp,0.0_dp)],[3,3])
-                                           
+
+  complex(dp), dimension(4,4) :: delta_4x4 = &
+  reshape([(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp), &
+           (0.0_dp,0.0_dp),(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp), &
+           (0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(1.0_dp,0.0_dp),(0.0_dp,0.0_dp), &
+           (0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp),(1.0_dp,0.0_dp)],[4,4])
 
   interface exp
      module procedure :: exp_su3alg

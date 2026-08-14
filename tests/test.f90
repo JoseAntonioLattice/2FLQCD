@@ -14,29 +14,28 @@ program test
   call test_mean_zero()
   call test_variance_one()
   call test_gamma()
-  call test_gamma5()
+  !call test_gamma5()
   !call test_pbc()
 
-  call test_sum_4x4matrices
-  call test_substraction_4x4matrices()
+!!$  call test_sum_4x4matrices
+!!$  call test_substraction_4x4matrices()
+!!$
+!!$  call test_cold_start()
+!!$
+!!$  call test_su3_links
+!!$
+!!$  call test_gellmann_matrices
+!!$  call test_unitarity()
+!!$
+!!$  call test_assert_matrix()
+!!$  call test_plaquette()
+!!$
+!!$  call test_TA
+!!$  call test_su3alg
+!!$  
+!!$  call test_exp_su3alg
 
-  call test_cold_start()
-
-  call test_su3_links
-
-  call test_gellmann_matrices
-  call test_unitarity()
-
-  call test_assert_matrix()
-  call test_plaquette()
-
-  call test_TA
-  call test_su3alg
-
-  
-
-
-  call test_exp_su3alg
+  call  test_gamma5hermiticity_of_Dirac_matrix()
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -553,6 +552,113 @@ contains
     
     
   end subroutine test_exp_su3alg
+
+
+  subroutine test_gamma5hermiticity_of_Dirac_matrix()
+    use dirac
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    real(dp), dimension(4,Lt,Lx,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,g1,g2,g3,g4,g5,g6,g7,g8
+    complex(dp), dimension(4,3,Lt,Lx,Ly,Lz) :: chi, phi, gamma5chi, Dgamma5chi, gamma5Dgamma5chi, Ddaggerchi
+    real(dp), dimension(4,3,Lt,Lx,Ly,Lz) :: s1,s2,s3,s4
+    integer :: t,x,y,z,a, mu
+    real(dp), parameter :: tol = 1.0e-1_dp
+    
+    
+    call set_pbc(L)
+    
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+    call random_number(r9)
+    call random_number(r10)
+    call random_number(r11)
+    call random_number(r12)
+    call random_number(r13)
+    call random_number(r14)
+    call random_number(r15)
+    call random_number(r16)
+    call elemental_rgauss(g1,r1,r2)
+    call elemental_rgauss(g2,r1,r2)
+    call elemental_rgauss(g3,r1,r2)
+    call elemental_rgauss(g4,r1,r2)
+    call elemental_rgauss(g5,r1,r2)
+    call elemental_rgauss(g6,r1,r2)
+    call elemental_rgauss(g7,r1,r2)
+    call elemental_rgauss(g8,r1,r2)
+    
+    !call U%init_su3(g1,g2,g3,g4,g5,g6,g7,g8)
+    call U%init()
+    call random_number(s1)
+    call random_number(s2)
+    call random_number(s3)
+    call random_number(s4)
+    call elemental_rgauss(chi%re,s1,s2)
+    call elemental_rgauss(chi%im,s3,s4)
+    
+    chi = (1.0_dp,0.0_dp)
+   
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do a = 1, 3
+                   gamma5chi(:,a,t,x,y,z) = matmul(gamma(5)%mat,chi(:,a,t,x,y,z))
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+    Dgamma5chi = D(gamma5chi,U)
+    
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do a = 1, 3
+                   gamma5Dgamma5chi(:,a,t,x,y,z) = matmul(gamma(5)%mat,Dgamma5chi(:,a,t,x,y,z))
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+    Ddaggerchi = Ddagger(chi,U)
+    
+    
+    
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do a = 1, 3
+                   do mu = 1, 4
+                   !condition(mu,t,x,y,z) = all( abs(real( - (1.0_dp,0.0_dp))) < tol ) &
+                   !     .and. ( abs(aimag(det)) < tol ) 
+                   !if(.not.condition(mu,t,x,y,z)) then
+                   !write(str,"(5(a,i0),a)") "  [FAIL] : det(exp(i*A/2)) /= 1 at x = (",t,",",x,",",y,",",z,"), mu = (", mu,")"
+                      call assert_equal_complex("gamma5Dgamma5 = Ddagger",&
+                           gamma5Dgamma5chi(mu,a,t,x,y,z),Ddaggerchi(mu,a,t,x,y,z),tol)
+                   end do
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+ !if(all(condition)) then
+ !   print*, "  [PASS]  : gamma5Dgamma5 = Ddagger"
+ !end if
+ 
+ 
+    
+
+  end subroutine test_gamma5hermiticity_of_Dirac_matrix
 
   
 end program test

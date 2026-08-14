@@ -10,9 +10,10 @@ module parameters
   integer :: N_measurements, N_thermalization, N_skip
   real(dp):: betai, betaf
   integer :: nbeta
+  real(dp):: m0
   character(50):: algorithm
   namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip, &
-       betai, betaf, nbeta, algorithm
+       betai, betaf, nbeta, algorithm, m0
 
 contains
 

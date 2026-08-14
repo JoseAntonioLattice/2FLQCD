@@ -9,4 +9,5 @@ betai = 0.1
 betaf = 10.0
 nbeta = 20
 algorithm = "hmc"
+m0 = 100.0
 /

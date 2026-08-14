@@ -2,6 +2,7 @@ module pbc
 
   implicit none
   integer, dimension(:), allocatable, private :: ip1, ip2, ip3, ip4, im1, im2, im3, im4
+  integer, dimension(:,:), allocatable :: sgnp, sgnm
 contains
 
 
@@ -16,7 +17,13 @@ contains
     call set_arrays(ip2,im2,L(2))
     call set_arrays(ip3,im3,L(3))
     call set_arrays(ip4,im4,L(4))
-    
+
+    allocate(sgnp(4,L(1)))
+    allocate(sgnm(4,L(1)))
+
+    sgnp = 1; sgnp(4,L(1)) = -1
+    sgnm = 1; sgnm(4,1) = -1
+        
   end subroutine set_pbc
 
   subroutine set_arrays(p,m,L)

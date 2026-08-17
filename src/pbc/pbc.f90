@@ -5,7 +5,6 @@ module pbc
   integer, dimension(:,:), allocatable :: sgnp, sgnm
 contains
 
-
   subroutine set_pbc(L)
     integer, intent(in) :: L(4)
     integer :: i
@@ -21,13 +20,13 @@ contains
     allocate(sgnp(4,L(1)))
     allocate(sgnm(4,L(1)))
 
-    sgnp = 1; sgnp(4,L(1)) = -1
-    sgnm = 1; sgnm(4,1) = -1
+    sgnp = 1; sgnp(1,L(1)) = -1
+    sgnm = 1; sgnm(1,1) = -1
         
   end subroutine set_pbc
 
   subroutine set_arrays(p,m,L)
-    integer, intent(in) :: L
+    integer, intent(in) :: L  
     integer, intent(out), dimension(L) :: p, m
     integer :: i
 
@@ -39,7 +38,6 @@ contains
     m(1) = L
     
   end subroutine set_arrays
-  
   
   function ip(x,mu)
     integer :: ip(4)
@@ -74,6 +72,5 @@ contains
        im(4) = im4(x(4))
     end select
   end function im
-
   
 end module pbc

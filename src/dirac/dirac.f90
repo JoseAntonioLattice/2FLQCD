@@ -32,9 +32,9 @@ contains
                          
                          res = res  - 0.5_dp*( &
                               (delta_4x4(alpha,beta) - gamma(mu)%mat(alpha,beta)) * &
-                              matmul(U(mu,t,x,y,z)%mat,chi(beta,:,xp(1),xp(2),xp(3),xp(4)) * sgnp(mu,t) ) + &
+                              matmul(U(mu,t,x,y,z)%mat,chi(beta,:,xp(1),xp(2),xp(3),xp(4)) * sgnp(mu,xp(1)) ) + &
                               (delta_4x4(alpha,beta) + gamma(mu)%mat(alpha,beta)) * &
-                              matmul(dag,chi(beta,:,xm(1),xm(2),xm(3),xm(4)) * sgnm(mu,t)) )
+                              matmul(dag,chi(beta,:,xm(1),xm(2),xm(3),xm(4)) * sgnm(mu,xm(1))) )
                       end do
                    end do
                    D(alpha,:,t,x,y,z) = res + (m0 + 4.0_dp)*chi(alpha,:,t,x,y,z)
@@ -66,9 +66,9 @@ contains
                       do beta = 1, 4
                          res = res  - 0.5_dp*( &
                               (delta_4x4(alpha,beta) - gamma(mu)%mat(alpha,beta)) * &
-                              matmul(dag, chi(beta,:,xp(1),xp(2),xp(3),xp(4)) * sgnp(mu,t)) + &
+                              matmul(dag, chi(beta,:,xm(1),xm(2),xm(3),xm(4)) * sgnm(mu,xm(1))) + &
                               (delta_4x4(alpha,beta) + gamma(mu)%mat(alpha,beta)) * &
-                              matmul(U(mu,t,x,y,z)%mat, chi(beta,:,xm(1),xm(2),xm(3),xm(4)) * sgnm(mu,t)) )
+                              matmul(U(mu,t,x,y,z)%mat, chi(beta,:,xp(1),xp(2),xp(3),xp(4)) * sgnp(mu,xp(1))) )
                       end do
                    end do
                    Ddagger(alpha,:,t,x,y,z) = res + (m0 + 4.0_dp)*chi(alpha,:,t,x,y,z)

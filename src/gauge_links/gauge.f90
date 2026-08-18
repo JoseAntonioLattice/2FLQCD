@@ -51,7 +51,6 @@ contains
     type(su3alg) :: Z
     type(su3), dimension(:,:,:,:,:), intent(in) :: U
     integer, intent(in) :: x(4), mu
-    integer, dimension(4) :: x2, x3
     type(matrix3x3) :: Z1
     Z1 = -TA(U(mu,x(1),x(2),x(3),x(4)) * dagger(staples(U,x,mu)) )
     Z%mat = Z1%mat

@@ -1,10 +1,9 @@
 module save
-  use pbc
   use iso_fortran_env, only : dp => real64, i4 => int32
   use number2string
   use check_files_directories 
   use parameters, only : L, Lt, Lx, Ly, Lz, m0
-   
+  use su3facts
   implicit none
 contains
 
@@ -13,8 +12,7 @@ contains
     real(dp), intent(in) :: beta
     character(:), allocatable :: path,file_name
     character(100), dimension(7) :: directory_array
-    
-    
+        
     directory_array = [character(100):: "data","configurations", &
          "Lt="//trim(int2str(Lt)),"Lx="//trim(int2str(Lx)),"Ly="//trim(int2str(Ly)),"Lz="//trim(int2str(Lz)), &
          "beta="//trim(real2str(beta,1,4))]
@@ -25,8 +23,7 @@ contains
     
     write(un) U
     close(un)
-    
-    
+        
   end subroutine save_configuration
 
   subroutine read_configuration(U,filename)

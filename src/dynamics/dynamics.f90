@@ -63,6 +63,7 @@ contains
 
   subroutine measurements(U,beta)
     use starts
+    use save
     use arrays, only : a_plqv
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: beta
@@ -73,7 +74,7 @@ contains
           call sweeps(U,beta)
        end do
        a_plqv(im) = plaquette_value(U)
-       !print*, a_plqv(im)
+       if(writeconf) call save_configuration(U,beta)
     end do
 
   end subroutine measurements
@@ -99,7 +100,8 @@ contains
     end select
 
     if(GFON) then
-       call thermalization(U,beta(1))
+       !call thermalization(U,beta(1))
+       call read_configuration(U,beta)
        call wilson_flow_rk3(U)
        return
     end if

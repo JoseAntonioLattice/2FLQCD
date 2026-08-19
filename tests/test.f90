@@ -6,6 +6,8 @@ program test
   use gauge
   use parameters
   use CG
+  use dynamics
+  use observables
   implicit none
   integer, parameter :: dp = 8
 
@@ -15,8 +17,8 @@ program test
   call test_mean_zero()
   call test_variance_one()
   call test_gamma()
-  !call test_gamma5()
-  !call test_pbc()
+  call test_gamma5()
+  call test_pbc()
 
 !!$  call test_sum_4x4matrices
 !!$  call test_substraction_4x4matrices()
@@ -37,7 +39,8 @@ program test
 !!$  call test_exp_su3alg
 
   !call  test_gamma5hermiticity_of_Dirac_matrix()
-  call test_conjugate_gradient
+  !call test_conjugate_gradient
+  call test_clover()
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -260,9 +263,9 @@ contains
 
   
   subroutine test_pbc()
-    integer :: L(4),p(4),m(4), i
+    use parameters, only : L
+    integer :: p(4),m(4), i
     
-    L = [16,15,14,13]
     call set_pbc(L)
     
     do i = 1, 4
@@ -271,12 +274,12 @@ contains
        call assert_equal("ip(L)",p(i), 1)
        call assert_equal("im(1)",m(i), L(i))
     end do
-    !deallocate(ip1)!,ip2,ip3,ip4,im1,im2,im3,im4)
+    
   end subroutine test_pbc
 
   subroutine test_cold_start()
     integer, parameter :: n = 4
-    type(matrix3x3) :: U(4,Lt,Lx,Ly,Lz)
+    type(su3) :: U(4,Lt,Lx,Ly,Lz)
     complex(dp) :: D(3,3)
     integer :: t, x, y, z, mu
     logical :: condition(4,Lt,Lx,Ly,Lz)
@@ -724,5 +727,33 @@ contains
     end do
 
   end subroutine test_conjugate_gradient
+
+
+  subroutine test_clover()
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    integer :: i
+    real(dp) :: E1, E2, E3
+    real(dp), parameter :: tol = 1.0e-12_dp
+
+    !call hot_start(U)
+    call cold_start(U)
+    
+    E1 = energy_density(U)
+    E2 = energy_density_clover(U)
+    E3 = energy_density_clover2(U)
+    call assert_close("clover = clover2",E2,E3,tol)
+    open(unit = 69,file = "tests/clover.dat")
+    write(69,*) E1, E2, E3
+    do i = 1, 100
+       call sweeps_heatbath(U,5.0_dp)
+       E1 = energy_density(U)
+       E2 = energy_density_clover(U)
+       E3 = energy_density_clover2(U)
+       call assert_close("clover = clover2",E2,E3,tol)
+       write(69,*) E1, E2, E3
+       flush(69)
+    end do
+    close(69)
+  end subroutine test_clover
   
 end program test

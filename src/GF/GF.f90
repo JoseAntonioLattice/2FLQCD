@@ -19,7 +19,7 @@ contains
     open(unit = 666, file = "data/WF.dat")
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S = energy_density(U)
-    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') 0, 0.0_dp, S
+    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') 0, 0.0_dp, S, energy_density_clover(U)
 
     do i = 1, n
        do x1 = 1, Lt
@@ -41,9 +41,10 @@ contains
        U = V
        S = energy_density(U)
               
-       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') i, i*epsilon, S
+       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') i, i*epsilon, S, energy_density_clover(U)
        flush(666)
     end do
+    close(666)
   end subroutine wilson_flow_euler
 
   
@@ -58,7 +59,7 @@ contains
     open(unit = 666, file = "data/WF.dat")
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S = energy_density(U)
-    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') 0, 0.0_dp, S
+    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X)') 0, 0.0_dp, S, energy_density_clover(U)
 
     wilson_time: do it = 1, N
           
@@ -106,9 +107,10 @@ contains
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
-       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') it, it*epsilon, S
+       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') it, it*epsilon, S, energy_density_clover(U)
        flush(666)
     end do wilson_time
+    close(666)
   end subroutine wilson_flow_rk3
 
 

@@ -1,0 +1,238 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author{José Antonio García Hernández}
+\title{2-Flavor Lattice QCD}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{math} %needed tikz library
+\usetikzlibrary{arrows}
+
+
+
+\usepackage{subcaption}
+
+\usepackage{dsfont}
+
+\newcommand{\tr}{\,\text{Tr}}
+\newcommand{\re}{\,\text{Re}}
+
+
+\begin{document}
+\maketitle
+
+\section{SU(3) gauge theory}
+\subsection{Action}
+    
+    We study the 4-dimensional SU(3) lattice gauge theory with the compact formulation. In this formulation we consider compact link variables $U_{x,\mu}\in \text{SU}(3)$ rather than the Lie algebra-valued fields $A_{x,\mu}$. The compact variables $U_{x,\mu}$ become the fundamental fields to be integrated over the functional integral. One great advantage of the compact formulation is that we no longer require to fix the gauge.
+
+Link variables are oriented, so they naturally live in the links between neighboring points on the lattice, with spacing $a$. Thus, the variable $U_{\mu}(x)$ is defined in the link between points $x$ and $x + a\hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + a\hat \mu$ pointing in the negative direction via
+\begin{equation}
+	U_{x+a\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu},
+\end{equation}
+see Fig.\ \ref{fig:conjg_link}.
+
+
+\begin{figure}
+\begin{center}
+\begin{subfigure}{0.45\textwidth}
+	\begin{center}
+	\begin{tikzpicture}
+		\tikzset{middlearrow/.style={decoration={markings,mark= at position 0.55 with {\arrow{#1}} ,},postaction={decorate}}};
+		\draw[middlearrow={latex}, very thick,blue] (0,0)--(4,0);
+		\draw[blue] (2,0) node[above] {$U_{x,\mu}$};
+		\filldraw[black] (0,0) circle(0.1);
+		\draw (0,-0.35) node[]{$x$};
+		\filldraw[black] (4,0) circle(0.1) node[below]{$x+a\hat{\mu}$};
+	\end{tikzpicture}
+	\end{center}
+	\caption{Link variable at point $x$ in the $\mu$ direction. $a$ is the lattice spacing.}
+	\label{fig:link}
+\end{subfigure}
+\begin{subfigure}{0.45\textwidth}
+	\begin{center}
+	\begin{tikzpicture}
+		\tikzset{middlearrow/.style={decoration={markings,mark= at position 0.55 with {\arrow{#1}} ,},postaction={decorate}}};
+		\draw[middlearrow={latex}, very thick,blue] (4,0)--(0,0);
+		\draw[blue] (2,0) node[above] {$  U_{x+a\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu}$};
+		\filldraw[black] (0,0) circle(0.1);
+		\draw (0,-0.35) node[]{$x$};
+		\filldraw[black] (4,0) circle(0.1) node[below]{$x+a\hat{\mu}$};
+	\end{tikzpicture}
+	\end{center}
+	\caption{Link variable at point $x+a\hat\mu$ in the $-\mu$ direction.}
+	\label{fig:conjg_link}
+\end{subfigure}
+\end{center}
+\caption{Graphical representation of link variables.}
+\end{figure}
+
+Under a gauge transformation the link variables transform as
+\begin{equation}
+	U'_{x,\mu} = \Omega_x U_{x,\mu} \Omega_{x+a\hat\mu}^{\dagger},
+\end{equation}
+where $\Omega_x\in\text{SU}(3)$. We refer to \cite{gattringer} for a complete discussion on lattice gauge theory.
+
+
+
+For SU($N$), the lattice gauge action reads
+\begin{equation}
+	\label{eq:wilson_action}
+	S[U] = \frac{\beta}{N}\sum_x \sum_{\mu < \nu} \text{Re}\ \text{Tr} \left[\mathds{1} - U_{x,\mu\nu} \right],
+\end{equation}
+where $\beta = \frac{2N}{g^2}$. The plaquettes are defined by
+\begin{equation}
+	\label{eq:plaquette}
+	U_{x,\mu\nu} = U_{x,\mu}U_{x+\hat{\mu},\nu}U_{x+\hat{\nu},\mu}^{\dagger}U_{x,\nu}^{\dagger} 
+\end{equation}
+
+Sum of plaquette variables
+\begin{equation}
+	\label{eq:Sp}
+	S_{\text{P}} = \frac{1}{N} \sum_x\sum_{\mu < \nu} \text{Re}\ \text{Tr} [U_{\mu\nu}(x)]
+\end{equation}
+we define
+\begin{equation}
+	\label{eq:Ep}
+	E_{\text{P}} =\frac{ \langle S_{\text{P}} \rangle}{D V}
+\end{equation}
+where $V$ is the volume of the lattice and $D = \frac{d(d-1)}{2}$ is the number of planes of rotation.
+
+Staples
+\begin{equation}
+	\label{eq:staples}
+	\Sigma_{x,\mu} = \sum_{\nu \neq \mu} \left[ U_{x,\nu}U_{x+\hat{\nu},\mu}U_{x+\hat{\mu},\nu}^{\dagger} + U_{x-\hat{\nu},\nu}^{\dagger}U_{x-\hat{\nu},\mu}U_{x+\hat{\mu}-\hat{\nu},\nu}\right]
+\end{equation}
+
+\subsection{Field strength tensor}
+
+We can define the field strengh tensor on the lattice with either the \emph{Plaquette} or \emph{Clover} definition. A clover is defined as follows
+\begin{eqnarray}
+    Q_{x,\mu\nu} & = & U_{x,\mu}U_{x+\hat{\mu},\nu}U_{x+\hat{\nu},\mu}^{\dagger}U_{x,\nu}^{\dagger}  +  \nonumber\\
+    & & U_{x,\nu}U_{x-\hat{\mu}+\hat{\nu},\mu}^{\dagger}U_{x-\hat{\mu},\nu}^{\dagger}U_{x-\hat{\mu},\mu}  + \nonumber\\ 
+    & & U_{x-\hat{\mu},\mu}^{\dagger}U_{x-\hat{\mu}-\hat{\nu},\nu}^{\dagger}U_{x-\hat{\mu}-\hat{\nu},\mu}U_{x-\hat{\nu},\nu}+\nonumber\\
+    &  & U_{x-\hat{\nu},\nu}^{\dagger} U_{x-\hat{\nu},\mu}U_{x+\hat{\mu}-\hat{\nu},\nu}U_{x,\mu}^{\dagger}.
+\end{eqnarray}
+
+\tikzmath{\eps= 0.05; \ep = 0.08;}
+ 
+
+\begin{figure}
+\begin{center}
+    \begin{tikzpicture}[decoration={markings,mark= at position 0.15 with {\arrow[scale=2,>=latex]{>}},markings,mark= at position 0.4 with {\arrow[scale=2,>=latex]{>}},mark= at position 0.65 with {\arrow[scale=2,>=latex]{>}},mark= at position 0.9 with {\arrow[scale=2,>=latex]{>}}},scale=2.3]
+        \draw[postaction={decorate}]  (\eps + \ep,\eps)--(1-\eps,\eps)--(1-\eps,1-\eps)--(\eps,1-\eps)--(\eps, \ep + \eps);
+        \draw[postaction={decorate}] (-\eps,\eps+\ep)--(-\eps,1-\eps)--(-1+\eps,1-\eps)--(-1+\eps,\eps)--(-\eps-\ep,\eps);
+        \draw[postaction={decorate}] (-\eps-\ep,-\eps)--(-1+\eps,-\eps)--(-1+\eps,-1+\eps)--(-\eps,-1+\eps)--(-\eps,-\eps-\ep);
+        \draw[postaction={decorate}] (\eps,-\eps-\ep)--(\eps,-1+\eps)--(1-\eps,-1+\eps)--(1-\eps,-\eps)--(\ep+\eps,-\eps); 
+        
+        %\fill[red] (0,0) circle(\eps);
+        \fill (1,0) circle(\eps);
+        \fill (1,1) circle(\eps);
+        \fill (0,1) circle(\eps);
+        \fill (-1,0) circle(\eps);
+        \fill (0,-1) circle(\eps);
+        \fill (-1,-1) circle(\eps);
+        \fill (-1,1) circle(\eps);
+        \fill (1,-1) circle(\eps);
+
+        \draw (0,0) node[]{$x$};
+        
+        %\draw (0,-1.3) node[below]{$Q_{x,\mu\nu}$};
+    \end{tikzpicture}
+\end{center}    
+\caption{A clover in the $(\mu\nu)$ plane is the sum of four oriented plaquettes $Q_{x,\mu\nu} = U_{x,\mu\nu} + U_{x,\nu-\mu} + U_{x,-\mu-\nu} + U_{x,-\nu\mu}$ at some given point $x$.}
+\end{figure}
+
+Field strength tensor with the plaquette definition
+\begin{equation}
+    F^{\text{plaquette}}_{x,\mu\nu} = i\left[\mathds{1} - U_{x,\mu\nu}\right].
+\end{equation}
+
+Field strength tensor with the clover definition
+\begin{equation}
+    F^{\text{clover}}_{x,\mu\nu} = \frac{1}{8i}\left[ Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right].
+\end{equation}
+
+\subsection{Energy density}
+    
+    In the continuum the definition of the energy density at $x$ is
+    
+    \begin{equation}
+        E = \frac{1}{4} F_{\mu\nu}^{a}(x)F_{\mu\nu}^{a}(x) = \frac{1}{2} \tr\left( F_{\mu\nu}(x)F_{\mu\nu}(x)\right),
+    \end{equation}
+where sum over repeated indices is assumed.
+A possibility of defining the energy density on the lattice is by using the plaquette
+\begin{equation}
+    E = \frac{2}{V}\sum_{x,\mu<\nu}\re\tr\left(\mathds{1} - U_{x,\mu\nu} \right)
+\end{equation}
+or by using the more symmetric definition with the clover
+\begin{eqnarray}
+    E & = & \frac{1}{2V}\sum_{x,\mu,\nu}\tr\left[F^{\text{clover}}_{\mu\nu}F^{\text{clover}}_{\mu\nu} \right]\\
+      & = & -\frac{1}{64V}\sum_{x,\mu<\nu} \re\tr\left( Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right)^2
+\end{eqnarray}
+
+\section{Wilson Flow}
+\begin{equation}
+    \frac{d}{dt}V_{x,\mu}(t) = Z_{x,\mu}(t)V_{x,\mu}(t) , \ \ \  \left. {V_{x,\mu}(t)}\right|_{t = 0} = U_{x,\mu}
+\end{equation}
+
+\begin{equation}
+         Z_{x,\mu} = -\{U_{x,\mu}\Sigma_{x,\mu}^{\dagger}\}_{\text{TA}}
+\end{equation}
+
+\begin{equation}
+    W_{\text{TA}} = \frac{W - W^{\dagger}}{2} - \frac{\text{Tr} (W - W^{\dagger})}{2N}
+\end{equation}
+
+The Euler version reads
+\begin{equation}
+    V_{\mu}(x,t+\varepsilon) = \exp\{\varepsilon Z_{\mu}(x,t)\}V_{\mu}(x,t).
+\end{equation}
+And the RK3 version reads
+\begin{eqnarray}
+    W_0 & = & V_t \\
+    W_1 & = & \exp\left(\frac{1}{4}Z_0\right)W_0 \\
+    W_2 & = & \exp\left(\frac{8}{9}Z_1 - \frac{17}{36}Z_0\right)W_1 \\
+    V_{t+\epsilon} & = & \exp \left(\frac{3}{4}Z_2 - \frac{8}{9}Z_1 + \frac{17}{36}Z_0\right)W_2
+\end{eqnarray}
+where
+\begin{equation}
+    Z_i = \epsilon Z(W_i), \ \ \ i =  0,1,2.
+\end{equation}
+\section{Two quark flavors}
+
+\section{Acknowledgements}
+The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc. Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
+
+\begin{thebibliography}{99}
+
+\bibitem{gattringer} C.\ Gattringer and C.B.\ Lang, \emph{Quantum Chromodynamics on the Lattice: An Introductory Presentation},  Lect.\ Notes Phys.\ 788 (Springer, Berlin Heidelberg 2010).
+
+\bibitem{Metropolis} N.\ Metropolis {\it et al.},
+\emph{Equation of State Calculations by Fast Computing Machines},
+J.\ Chem.\ Phys.\ {\bf 21} (1953) 1087.
+
+\bibitem{Glauber} R.J.\ Glauber,
+  \emph{Time-Dependent Statistics of the Ising Model},
+  J.\ Math.\ Phys.\ {\bf 4} (1963) 294.
+  
+\bibitem{Gerber} U.\ Gerber,
+  \emph{Heatbath Algorithm for the 2d U(1) Model}.
+  Informal Notes. Universidad Nacional Autónoma de México, 2015.  
+  
+  \bibitem{creutz1980} M. Creutz, \emph{Monte Carlo Study of the Quantized SU(2) Gauge Theory.} Phys.\ Rev.\ D {\bf 21} (1980) 2308-2315.
+
+\bibitem{cabbibo1982} N. Cabbibo, E. Marinari, \emph{A New Method for Updating SU(N) Matrices in Computer Simulations of Gauge Theories}, Phys.\ Lett.\ B {\bf 119} (1982) 387-390.
+
+\bibitem{kennedy1985} A.D.\ Kennedy, B.J.\ Pendleton, \emph{Improved Heatbath Method for Monte Carlo Calculations in Lattice Gauge Theories}, Phys.\ Lett.\ {\bf 156B} (1985) 393-399.
+
+\bibitem{luscher2014} M.\ L\"uscher, \emph{Properties and uses of the Wilson flow in lattice QCD}, 2014.
+
+\end{thebibliography}
+
+
+\end{document}

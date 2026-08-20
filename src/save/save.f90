@@ -12,6 +12,7 @@ contains
     real(dp), intent(in) :: beta
     character(:), allocatable :: path,file_name
     character(100), dimension(7) :: directory_array
+    integer :: un
         
     directory_array = [character(100):: "data","configurations", &
          "Lt="//trim(int2str(Lt)),"Lx="//trim(int2str(Lx)),"Ly="//trim(int2str(Ly)),"Lz="//trim(int2str(Lz)), &
@@ -28,7 +29,8 @@ contains
 
   subroutine read_configuration(U,filename)
     type(su3), intent(out) :: U(4,Lt,Lx,Ly,Lz)
-    character(*), intent(in) :: filename 
+    character(*), intent(in) :: filename
+    integer :: un
         
     open(newunit = un, file = filename, access = "sequential", form = "unformatted", action = "read")  
     read(un) U
@@ -38,5 +40,5 @@ contains
 
 
 
-end module configurations
+end module save
 

@@ -74,7 +74,7 @@ contains
           call sweeps(U,beta)
        end do
        a_plqv(im) = plaquette_value(U)
-       if(writeconf) call save_configuration(U,beta)
+       if(saveconf) call save_configuration(U,beta)
     end do
 
   end subroutine measurements
@@ -84,10 +84,13 @@ contains
     use starts
     use statistics
     use arrays, only : a_plqv
+    use save
+   
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: beta(:)
     integer :: ib, inunit
-
+    character(:), allocatable :: filename
+    
     open(newunit=inunit, file= "data/plaquette_value_"//trim(algorithm)//".dat")
 
     select case(trim(start))
@@ -101,7 +104,10 @@ contains
 
     if(GFON) then
        !call thermalization(U,beta(1))
-       call read_configuration(U,beta)
+       filename = "data/configurations/Lt="//int2str(Lt)// &
+            "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
+            "/beta="//real2str(beta(1),1,4)//"/U_1.bin"
+       call read_configuration(U,filename)
        call wilson_flow_rk3(U)
        return
     end if

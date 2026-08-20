@@ -12,9 +12,10 @@ module parameters
   integer :: nbeta
   real(dp):: m0
   character(50):: algorithm, start
-  logical :: GFON
+  logical :: GFON, saveconf, readconf
+  
   namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip, &
-       betai, betaf, nbeta,start, algorithm, GFON, m0
+       betai, betaf, nbeta,start, algorithm, GFON,saveconf, readconf, m0
 
 contains
 

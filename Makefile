@@ -4,7 +4,7 @@ MODDIR := build/mod
 
 FLAGS += -I $(MODDIR) -J $(MODDIR)
 
-SRCS := src/statistics/statistics.f90 src/pbc/pbc.f90 src/parameters/parameters.f90 src/su3/su3facts.f90 src/arrays/arrays.f90 src/random/random.f90 \
+SRCS := src/number2string/number2string.f90 src/files/check_files_directories.f90 src/statistics/statistics.f90 src/pbc/pbc.f90 src/parameters/parameters.f90 src/su3/su3facts.f90 src/save/save.f90 src/arrays/arrays.f90 src/random/random.f90 \
 src/starts/starts.f90 src/gauge_links/gauge.f90 src/observables/observables.f90 src/GF/GF.f90 src/dirac/dirac.f90 src/conjugate_gradient/CG.f90 src/HMC/hybridMC.f90 src/lua/lua.f90 src/dynamics/dynamics.f90
 
 OBJS := $(patsubst %.f90, $(OBJDIR)/%.o, $(notdir $(SRCS)))

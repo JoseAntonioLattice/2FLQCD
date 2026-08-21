@@ -18,21 +18,36 @@
 
 \usepackage{dsfont}
 
-\newcommand{\tr}{\,\text{Tr}}
-\newcommand{\re}{\,\text{Re}}
+\newcommand{\tr}{\text{Tr}\,}
+\newcommand{\re}{\text{Re}\,}
+\newcommand{\SU}[1]{\text{SU}({#1})}
 
+\newcommand{\su}[1]{\mathfrak{su}({#1})}
 
 \begin{document}
 \maketitle
 
-\section{SU(3) gauge theory}
-\subsection{Action}
-    
+\section{SU($N$) gauge theory}
+
+    An element of a group \SU{$N$} is represented by 
+    \begin{equation}
+        U = e^{iA} \in \SU{N}
+    \end{equation}
+where $A\in\su{N}$ is traceless and Hermitian, an element of the Lie algebra. There are $N^2-1$ generators $T^a$ of the algebra, and they satisfy
+
+    \begin{equation}
+       \tr T = 0, \ \ \ T^{\dagger} = T, \ \ \ \tr [T^a,T^b] = \frac{1}{2}\delta^{ab}.
+    \end{equation}
+    Any element of the algebra can be written as
+    \begin{equation}
+        A = A^aT^a , \ \ \ A^a \in \mathbb{R},
+    \end{equation}
+    sum over repeated indices assumed.
     We study the 4-dimensional SU(3) lattice gauge theory with the compact formulation. In this formulation we consider compact link variables $U_{x,\mu}\in \text{SU}(3)$ rather than the Lie algebra-valued fields $A_{x,\mu}$. The compact variables $U_{x,\mu}$ become the fundamental fields to be integrated over the functional integral. One great advantage of the compact formulation is that we no longer require to fix the gauge.
 
-Link variables are oriented, so they naturally live in the links between neighboring points on the lattice, with spacing $a$. Thus, the variable $U_{\mu}(x)$ is defined in the link between points $x$ and $x + a\hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + a\hat \mu$ pointing in the negative direction via
+Link variables are oriented, so they naturally live in the links between neighboring points on the lattice. Thus, the variable $U_{\mu}(x)$ is defined in the link between points $x$ and $x + \hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + \hat \mu$ pointing in the negative direction via
 \begin{equation}
-	U_{x+a\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu},
+	U_{x+\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu}, 
 \end{equation}
 see Fig.\ \ref{fig:conjg_link}.
 
@@ -47,10 +62,10 @@ see Fig.\ \ref{fig:conjg_link}.
 		\draw[blue] (2,0) node[above] {$U_{x,\mu}$};
 		\filldraw[black] (0,0) circle(0.1);
 		\draw (0,-0.35) node[]{$x$};
-		\filldraw[black] (4,0) circle(0.1) node[below]{$x+a\hat{\mu}$};
+		\filldraw[black] (4,0) circle(0.1) node[below]{$x+\hat{\mu}$};
 	\end{tikzpicture}
 	\end{center}
-	\caption{Link variable at point $x$ in the $\mu$ direction. $a$ is the lattice spacing.}
+	\caption{Link variable at point $x$ in the $\mu$ direction.}
 	\label{fig:link}
 \end{subfigure}
 \begin{subfigure}{0.45\textwidth}
@@ -58,13 +73,13 @@ see Fig.\ \ref{fig:conjg_link}.
 	\begin{tikzpicture}
 		\tikzset{middlearrow/.style={decoration={markings,mark= at position 0.55 with {\arrow{#1}} ,},postaction={decorate}}};
 		\draw[middlearrow={latex}, very thick,blue] (4,0)--(0,0);
-		\draw[blue] (2,0) node[above] {$  U_{x+a\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu}$};
+		\draw[blue] (2,0) node[above] {$  U_{x+\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu}$};
 		\filldraw[black] (0,0) circle(0.1);
 		\draw (0,-0.35) node[]{$x$};
-		\filldraw[black] (4,0) circle(0.1) node[below]{$x+a\hat{\mu}$};
+		\filldraw[black] (4,0) circle(0.1) node[below]{$x+\hat{\mu}$};
 	\end{tikzpicture}
 	\end{center}
-	\caption{Link variable at point $x+a\hat\mu$ in the $-\mu$ direction.}
+	\caption{Link variable at point $x+\hat\mu$ in the $-\mu$ direction.}
 	\label{fig:conjg_link}
 \end{subfigure}
 \end{center}
@@ -73,12 +88,13 @@ see Fig.\ \ref{fig:conjg_link}.
 
 Under a gauge transformation the link variables transform as
 \begin{equation}
-	U'_{x,\mu} = \Omega_x U_{x,\mu} \Omega_{x+a\hat\mu}^{\dagger},
+	U'_{x,\mu} = \Omega_x U_{x,\mu} \Omega_{x+\hat\mu}^{\dagger},
 \end{equation}
 where $\Omega_x\in\text{SU}(3)$. We refer to \cite{gattringer} for a complete discussion on lattice gauge theory.
 
 
 
+\subsection{Action}
 For SU($N$), the lattice gauge action reads
 \begin{equation}
 	\label{eq:wilson_action}
@@ -87,7 +103,7 @@ For SU($N$), the lattice gauge action reads
 where $\beta = \frac{2N}{g^2}$. The plaquettes are defined by
 \begin{equation}
 	\label{eq:plaquette}
-	U_{x,\mu\nu} = U_{x,\mu}U_{x+\hat{\mu},\nu}U_{x+\hat{\nu},\mu}^{\dagger}U_{x,\nu}^{\dagger} 
+	U_{x,\mu\nu} = U_{x;\mu,\nu} = U_{x,\mu}U_{x+\hat{\mu},\nu}U_{x+\hat{\nu},\mu}^{\dagger}U_{x,\nu}^{\dagger} 
 \end{equation}
 
 Sum of plaquette variables
@@ -144,12 +160,12 @@ We can define the field strengh tensor on the lattice with either the \emph{Plaq
         %\draw (0,-1.3) node[below]{$Q_{x,\mu\nu}$};
     \end{tikzpicture}
 \end{center}    
-\caption{A clover in the $(\mu\nu)$ plane is the sum of four oriented plaquettes $Q_{x,\mu\nu} = U_{x,\mu\nu} + U_{x,\nu-\mu} + U_{x,-\mu-\nu} + U_{x,-\nu\mu}$ at some given point $x$.}
+\caption{A clover in the $(\mu\nu)$ plane is the sum of four oriented plaquettes $Q_{x;\mu,\nu} = U_{x;\mu,\nu} + U_{x;\nu,-\mu} + U_{x;-\mu,-\nu} + U_{x;-\nu,\mu}$ at some given point $x$.}
 \end{figure}
 
 Field strength tensor with the plaquette definition
 \begin{equation}
-    F^{\text{plaquette}}_{x,\mu\nu} = i\left[\mathds{1} - U_{x,\mu\nu}\right].
+    F^{\text{plaquette}}_{x,\mu\nu} = \mathds{1} - U_{x,\mu\nu}.
 \end{equation}
 
 Field strength tensor with the clover definition
@@ -176,12 +192,15 @@ or by using the more symmetric definition with the clover
 \end{eqnarray}
 
 \section{Wilson Flow}
+
+The Wilson flow is a smoothing procedure that averages the gauge field over a space sphere of radius $\sqrt{8t}$. 
+
 \begin{equation}
-    \frac{d}{dt}V_{x,\mu}(t) = Z_{x,\mu}(t)V_{x,\mu}(t) , \ \ \  \left. {V_{x,\mu}(t)}\right|_{t = 0} = U_{x,\mu}
+    \frac{d}{dt}V_{x,\mu}(t) = Z(V_{x,\mu}(t))V_{x,\mu}(t) , \ \ \  \left. {V_{x,\mu}(t)}\right|_{t = 0} = U_{x,\mu}
 \end{equation}
 
 \begin{equation}
-         Z_{x,\mu} = -\{U_{x,\mu}\Sigma_{x,\mu}^{\dagger}\}_{\text{TA}}
+         Z(U_{x,\mu}) = -\{U_{x,\mu}\Sigma_{x,\mu}^{\dagger}\}_{\text{TA}}
 \end{equation}
 
 \begin{equation}
@@ -190,23 +209,36 @@ or by using the more symmetric definition with the clover
 
 The Euler version reads
 \begin{equation}
-    V_{\mu}(x,t+\varepsilon) = \exp\{\varepsilon Z_{\mu}(x,t)\}V_{\mu}(x,t).
+    V_{x,\mu}(t+\varepsilon) = \exp\left\{\varepsilon Z(V_{x,\mu}(t))\right\}V_{x,\mu}(t).
 \end{equation}
 And the RK3 version reads
 \begin{eqnarray}
-    W_0 & = & V_t \\
+    W_0 & = & V_{x,\mu}(t) \\
     W_1 & = & \exp\left(\frac{1}{4}Z_0\right)W_0 \\
     W_2 & = & \exp\left(\frac{8}{9}Z_1 - \frac{17}{36}Z_0\right)W_1 \\
-    V_{t+\epsilon} & = & \exp \left(\frac{3}{4}Z_2 - \frac{8}{9}Z_1 + \frac{17}{36}Z_0\right)W_2
+    V_{x,\mu}(t+\epsilon) & = & \exp \left(\frac{3}{4}Z_2 - \frac{8}{9}Z_1 + \frac{17}{36}Z_0\right)W_2
 \end{eqnarray}
 where
 \begin{equation}
     Z_i = \epsilon Z(W_i), \ \ \ i =  0,1,2.
 \end{equation}
-\section{Two quark flavors}
+
+\subsection{Energy density under Wilson flow}
+At $\beta = 6.42$ the lattice spacing is $a = 0.0498(3)$ fm and $t_0/a^2 = 11.241(23)$. Since $r_0 = 0.5$ fm, then
+    \begin{equation}
+        t/r_0^2 = \frac{t_{\text{lat}}}{(r_0/a)^2} = \frac{t_{\text{lat}}}{100.8}
+    \end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.5]{WF_32x16.pdf}
+    \caption{Simulation at $\beta = 6.42$ that corresponds to $a = 0.0498$. With this volume finite size effects are strong. The integration scheme is done with RK3.}
+\end{figure}
+
+\section{Dynamical quarks}
 
 \section{Acknowledgements}
-The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc. Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
+The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
 
 \begin{thebibliography}{99}
 

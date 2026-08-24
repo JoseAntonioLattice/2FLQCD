@@ -1,17 +1,17 @@
 &lattice
-L = 8,8,8,8
-N = 100
+L = 4,4,4,4
+N = 20
 epsilon = 0.02
-N_thermalization = 100
+N_thermalization = 1000
 N_measurements = 100
 N_skip = 5
 betai = 0.1
-betaf = 5.0
-nbeta = 10
-start = "cold"
+betaf = 10.0
+nbeta = 20
+start = "hot"
 algorithm = "heatbath"
-GFON = T
+GFON = F
 saveconf = F
-readconf = T
+readconf = F
 m0 = 100.0
 /

@@ -36,7 +36,7 @@
 where $A\in\su{N}$ is traceless and Hermitian, an element of the Lie algebra. There are $N^2-1$ generators $T^a$ of the algebra, and they satisfy
 
     \begin{equation}
-       \tr T = 0, \ \ \ T^{\dagger} = T, \ \ \ \tr [T^a,T^b] = \frac{1}{2}\delta^{ab}.
+       \tr T = 0, \ \ \ T^{\dagger} = T, \ \ \ \tr [T^aT^b] = \frac{1}{2}\delta^{ab}.
     \end{equation}
     Any element of the algebra can be written as
     \begin{equation}
@@ -232,13 +232,61 @@ At $\beta = 6.42$ the lattice spacing is $a = 0.0498(3)$ fm and $t_0/a^2 = 11.24
 \begin{figure}
     \centering
     \includegraphics[scale=0.5]{WF_32x16.pdf}
-    \caption{Simulation at $\beta = 6.42$ that corresponds to $a = 0.0498$. With this volume finite size effects are strong. The integration scheme is done with RK3.}
+    \caption{Simulation at $\beta = 6.42$ that corresponds to $a = 0.0498$ fm. With this volume finite size effects are strong. The integration scheme is done with RK3.}
 \end{figure}
 
 \section{Dynamical quarks}
+Dirac matrix 
+\begin{equation}
+    D_{x,y;\alpha\beta}^{ab} = (m_0 + 4)\delta_{\alpha\beta}\delta^{ab}\delta_{x,y} - \frac{1}{2}\sum_{\mu = \pm 1}^{\pm 4}\left(\mathds{1} - \gamma_{\mu} \right)_{\alpha\beta}U^{ab}_{x,\mu}\delta_{x+\hat{\mu},y},
+\end{equation}
+where we define
+\begin{equation}
+    \gamma_{-\mu} = -\gamma_{\mu}, \ \ \ \mu = 1,2,3,4 .
+\end{equation}
+
+The fermion action for QCD reads
+\begin{equation}
+    S_{F}[\psi,\bar{\psi},U] = \sum_{f = 1}^{N_f} \sum_{x,y} \bar{\psi}^{(f)}_x D^{(f)}_{x,y} \psi^{(f)}_{y} .
+\end{equation}
+
+
+\subsection{Leapfrog}
+    \begin{enumerate}
+        \item Generate the pseudofermion field $\phi = D\chi$, where $\chi$ is distributed according to $\exp(-\chi^{\dagger}\chi)$.
+        \item Given a gauge configuration $[U]_0$ generate $[P]_0 \in \su{3}$ according to the Gaussian distribution $\exp(-\tr[P^2])$.
+        \item Initial step
+            \begin{equation}
+                P_{1/2} = P_0 - \left.\frac{\epsilon}{2}F[U,\phi]\right|_{U_0}.
+            \end{equation}
+        \item Intermediate steps
+        For $k = 1, \dots, n - 1 $:
+            \begin{equation}
+                U_{k} =  \exp\left( i\epsilon P_{k-\frac{1}{2}}\right)U_{k-1} , \ \ \ P_{k+\frac{1}{2}} = P_{k-\frac{1}{2}} - \left.\epsilon F[U,\phi]\right|_{U_k}
+            \end{equation}
+        \item Final step
+            \begin{equation}
+                U_{n} =  \exp\left( i\epsilon P_{n-\frac{1}{2}}\right)U_{n-1} , \ \ \ P_{n} = P_{n-\frac{1}{2}} - \left.\frac{\epsilon}{2} F[U,\phi]\right|_{U_n}
+            \end{equation}
+        \item Monte Carlo step. Accept/reject the configuration at the end of the trajectory with probability
+            \begin{equation}
+                \min\{1,\exp{\left(-\Delta H\right)}\}.
+            \end{equation}
+    \end{enumerate}
+
+\begin{equation}
+    F[U,\phi] = \sum_{a = 1}^8 T^a \nabla^{(a)} \left(S_G[U] + \phi^{\dagger}(DD^{\dagger})^{-1}\phi \right) \in \su{3}
+\end{equation}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.5]{plq.pdf}
+    \caption{Plaquette value of the pure gauge SU(3) theory with $m_0=\infty$ using heatbath and with dynamical quarks at $m_0 = 100$ with hybrid Monte Carlo.}
+\end{figure}
 
 \section{Acknowledgements}
-The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
+The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algo00000000rithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
 
 \begin{thebibliography}{99}
 

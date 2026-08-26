@@ -138,8 +138,8 @@ contains
                       end do
                    end do
 
-                   W%mat = sgnp(mu,t)*matmul(U(mu,t,x,y,z)%mat,res1) - sgnm(mu,xp(1))*matmul(res2,dagU%mat)
-                   WTA = i*TA(W)
+                   W%mat = sgnp(mu,t)*matmul(U(mu,t,x,y,z)%mat,res1) - sgnp(mu,t)*matmul(res2,dagU%mat)
+                   WTA = 0.5_dp*i*TA(W)
                    ZetaU = beta*i/6.0_dp*Zeta(U,[t,x,y,z],mu)
                    f(mu,t,x,y,z)%mat = ZetaU%mat + WTA%mat  
                 end do
@@ -177,5 +177,64 @@ contains
     
   end function DeltaS
 
+
+  function Force2(U,psi,chi,beta)
+    type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Force2
+    type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
+    !complex(dp), dimension(4,3,Lt,Lx,Ly,Lz), intent(in) :: phi
+    complex(dp), dimension(4,3,Lt,Lx,Ly,Lz), intent(in) :: chi, psi
+    real(dp), intent(in) :: beta
+    integer :: t,x,y,z,mu,a,b,c, alpha,bet, xp(4), i
+    real(dp) :: res1, res2
+    type(su3alg) :: W, ZetaU
+    type(matrix3x3) :: WTA
+    type(su3) :: dagU
+    
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                do mu = 1, 4
+                   xp = ip([t,x,y,z],mu)
+                   dagU = dagger(U(mu,t,x,y,z))
+                   
+                   do i = 1, 8
+                      res1 = 0.0_dp
+                      res2 = 0.0_dp
+                      do alpha = 1, 4;
+                         do bet = 1, 4
+                            do a = 1, 3
+                               do b = 1, 3
+                                  do c = 1, 3
+                                     res1 = res1 + real( &
+                                          conjg(psi(alpha,a,t,x,y,z))*gellmann_matrix(i)%mat(a,b) * &
+                                          (delta_4x4(alpha,bet)-gamma(mu)%mat(alpha,bet)) * &
+                                          U(mu,t,x,y,z)%mat(b,c) * &
+                                          chi(bet,c,xp(1),xp(2),xp(3),xp(4))) 
+                                          
+                                     res2 = res2 + real(&
+                                          conjg(psi(alpha,a,xp(1),xp(2),xp(3),xp(4))) * &
+                                          (delta_4x4(alpha,bet)+gamma(mu)%mat(alpha,bet)) * &
+                                          dagU%mat(a,b) * &
+                                          gellmann_matrix(i)%mat(b,c) * &
+                                          chi(bet,c,t,x,y,z) )
+                                          
+                                  end do
+                               end do
+                            end do
+                         end do
+                      end do
+                      Force2(mu,t,x,y,z) = Force2(mu,t,x,y,z) + 0.25_dp*(res1 - res2)*sgnp(mu,t)*gellmann_matrix(i)
+                   end do
+                   
+                   
+                end do
+             end do
+          end do
+       end do
+    end do
+    
+    
+  end function FORCE2
   
 end module hybridMC

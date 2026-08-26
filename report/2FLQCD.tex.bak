@@ -278,6 +278,23 @@ The fermion action for QCD reads
     F[U,\phi] = \sum_{a = 1}^8 T^a \nabla^{(a)} \left(S_G[U] + \phi^{\dagger}(DD^{\dagger})^{-1}\phi \right) \in \su{3}
 \end{equation}
 
+We define the auxiliary fields
+\begin{equation}
+    \chi = \left(DD^{\dagger}\right)^{-1}\phi, \ \ \ \psi = D^{\dagger} \chi .
+\end{equation}
+The fermionic part of the force
+\begin{eqnarray}
+    \left(F_{\text{f}}\right)^i_{x,\mu} & = & \re\left\{ \left[T^i\right]^{ab}U_{x,\mu}^{bc} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}^c \left(\psi^{a}_{x,\alpha}\right)^*\right\} \\
+     & - & \re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \chi_{x,\beta}^{c} (\psi_{x+\hat{\mu},\alpha}^a)^* \right \} \\
+     & = & \re \left\{\left[T^i\right]^{ab}U_{x,\mu}^{bc} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha} \right)^{ca} \right\} \\
+     & - & \re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right)^{ca} \right \} \\
+     & = & \re\tr\left\{T^iU_{x,\mu} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha}\right) \right\} \\
+     & - & \re \tr \left\{ U_{x,\mu}^{\dagger}T^i\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right) \right \} 
+\end{eqnarray}
+Then
+\begin{equation}
+    \left(F_{\text{f}}\right)_{x,\mu} = \frac{1}{2}\left\{ U_{x,\mu} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}\otimes\psi^{\dagger}_{x,\alpha} - U_{x,\mu}^{\dagger}\left( 1+\gamma_{\mu}\right)_{\alpha\beta}       \chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha} \right\}_{\text{TA}}
+\end{equation}
 
 \begin{figure}
     \centering
@@ -286,7 +303,7 @@ The fermion action for QCD reads
 \end{figure}
 
 \section{Acknowledgements}
-The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algo00000000rithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
+The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
 
 \begin{thebibliography}{99}
 

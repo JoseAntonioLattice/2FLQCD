@@ -75,19 +75,19 @@ contains
     Pnew = P - 0.5*epsilon * F(U,psi,chi,beta)
     psiold = psi
     do k = 1, N - 1
-       Unew = exp( i*epsilon*Pnew)*Unew
+       Unew = exp( epsilon*Pnew)*Unew
        psi = conjugate_gradient(phi,Unew)
        chi = Ddagger(psi,Unew)
        Pnew = Pnew - epsilon * F(Unew,psi,chi,beta)
     
     end do
-    Unew = exp(i*epsilon*Pnew)*Unew
+    Unew = exp( epsilon*Pnew)*Unew
        
     psi = conjugate_gradient(phi,Unew)
     chi = Ddagger(psi,Unew)
     Pnew = Pnew - 0.5*epsilon*F(Unew,psi,chi,beta)
 
-    DS = sum(tr(P*P - Pnew*Pnew)) - DeltaS(U,Unew,beta) + sum(conjg(phi)*psiold) &
+    DS = sum(tr(-P*P + Pnew*Pnew)) - DeltaS(U,Unew,beta) + sum(conjg(phi)*psiold) &
          -sum(conjg(psi)*phi)
 
     call random_number(r)
@@ -139,8 +139,8 @@ contains
                    end do
 
                    W%mat = sgnp(mu,t)*matmul(U(mu,t,x,y,z)%mat,res1) - sgnp(mu,t)*matmul(res2,dagU%mat)
-                   WTA = 0.5_dp*i*TA(W)
-                   ZetaU = beta*i/6.0_dp*Zeta(U,[t,x,y,z],mu)
+                   WTA = 0.5_dp*TA(W)
+                   ZetaU = -beta/6.0_dp*Zeta(U,[t,x,y,z],mu)
                    f(mu,t,x,y,z)%mat = ZetaU%mat + WTA%mat  
                 end do
              end do

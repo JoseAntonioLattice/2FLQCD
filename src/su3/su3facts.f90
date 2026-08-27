@@ -31,7 +31,7 @@ module su3facts
      procedure :: dagger => dagger_su3alg
   end type su3alg
 
-  type(su3alg) :: gellmann_matrix(8)
+  type(su3alg) :: gellmann_matrix(8), su3alg_gen(8)
   type(matrix4x4) :: dirac_matrix(5)
   complex(dp), dimension(3,3) :: delta_3x3 = &
   reshape([(1.0_dp,0.0_dp),(0.0_dp,0.0_dp),(0.0_dp,0.0_dp),&
@@ -377,6 +377,8 @@ contains
     gellmann_matrix(8)%mat(1,1) =  1.0_dp/sqrt(3.0_dp)
     gellmann_matrix(8)%mat(2,2) =  1.0_dp/sqrt(3.0_dp)
     gellmann_matrix(8)%mat(3,3) = -2.0_dp/sqrt(3.0_dp)
+
+    su3alg_gen = 0.5_dp*i*gellmann_matrix
     
   end subroutine create_gellmann_matrices
   
@@ -507,24 +509,31 @@ contains
     type(su3alg) :: A
     type(su3) :: C
     
-    A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
-    A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
-    A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    C = exp(0.5_dp*i*A)
+    !A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
+    !A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
+    !A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
+    !C = exp(0.5_dp*i*A)
+    !U%mat = C%mat
+
+    call init_su3alg(A,r1,r2,r3,r4,r5,r6,r7,r8)
+    C = exp(A)
     U%mat = C%mat
-    
   end subroutine init_su3
 
-  elemental subroutine init_su3alg(U,r1,r2,r3,r4,r5,r6,r7,r8)
-    class(su3alg), intent(inout) :: U
+  !Traceless antihermintian element A
+  elemental subroutine init_su3alg(A,r1,r2,r3,r4,r5,r6,r7,r8)
+    class(su3alg), intent(inout) :: A
     real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
-    type(su3alg) :: A
+    type(su3alg) :: res
+    !A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
+    !A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
+    !A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
+    !U%mat = 0.5_dp*A%mat 
 
-    A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
-    A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
-    A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    U%mat = 0.5_dp*A%mat 
-    
+    res =   r1*su3alg_gen(1) + r2*su3alg_gen(2) + r3*su3alg_gen(3) &
+          + r4*su3alg_gen(4) + r5*su3alg_gen(5) + r6*su3alg_gen(6) &
+          + r7*su3alg_gen(7) + r8*su3alg_gen(8)
+    A%mat = res%mat
   end subroutine init_su3alg
   
   elemental pure function su3alg_sum(A,B)

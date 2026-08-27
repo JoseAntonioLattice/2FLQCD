@@ -12,8 +12,6 @@
 \usetikzlibrary{math} %needed tikz library
 \usetikzlibrary{arrows}
 
-
-
 \usepackage{subcaption}
 
 \usepackage{dsfont}
@@ -31,12 +29,12 @@
 
     An element of a group \SU{$N$} is represented by 
     \begin{equation}
-        U = e^{iA} \in \SU{N}
+        U = e^{A} \in \SU{N}
     \end{equation}
-where $A\in\su{N}$ is traceless and Hermitian, an element of the Lie algebra. There are $N^2-1$ generators $T^a$ of the algebra, and they satisfy
+where $A\in\su{N}$ is traceless and anti-Hermitian, an element of the Lie algebra. There are $N^2-1$ generators $T^a$ of the algebra, and they satisfy
 
     \begin{equation}
-       \tr T = 0, \ \ \ T^{\dagger} = T, \ \ \ \tr [T^aT^b] = \frac{1}{2}\delta^{ab}.
+       \tr T = 0, \ \ \ T^{\dagger} = -T, \ \ \ \tr [T^aT^b] = -\frac{1}{2}\delta^{ab}.
     \end{equation}
     Any element of the algebra can be written as
     \begin{equation}
@@ -92,13 +90,11 @@ Under a gauge transformation the link variables transform as
 \end{equation}
 where $\Omega_x\in\text{SU}(3)$. We refer to \cite{gattringer} for a complete discussion on lattice gauge theory.
 
-
-
 \subsection{Action}
 For SU($N$), the lattice gauge action reads
 \begin{equation}
 	\label{eq:wilson_action}
-	S[U] = \frac{\beta}{N}\sum_x \sum_{\mu < \nu} \text{Re}\ \text{Tr} \left[\mathds{1} - U_{x,\mu\nu} \right],
+	S_G[U] = \frac{\beta}{N}\sum_x \sum_{\mu < \nu} \text{Re}\ \text{Tr} \left[\mathds{1} - U_{x,\mu\nu} \right],
 \end{equation}
 where $\beta = \frac{2N}{g^2}$. The plaquettes are defined by
 \begin{equation}
@@ -165,12 +161,12 @@ We can define the field strengh tensor on the lattice with either the \emph{Plaq
 
 Field strength tensor with the plaquette definition
 \begin{equation}
-    F^{\text{plaquette}}_{x,\mu\nu} = \mathds{1} - U_{x,\mu\nu}.
+    F^{\text{plaquette}}_{x,\mu\nu} = i(\mathds{1} - U_{x,\mu\nu}).
 \end{equation}
 
 Field strength tensor with the clover definition
 \begin{equation}
-    F^{\text{clover}}_{x,\mu\nu} = \frac{1}{8i}\left[ Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right].
+    F^{\text{clover}}_{x,\mu\nu} = \frac{1}{8}\left[ Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right].
 \end{equation}
 
 \subsection{Energy density}
@@ -178,7 +174,7 @@ Field strength tensor with the clover definition
     In the continuum the definition of the energy density at $x$ is
     
     \begin{equation}
-        E = \frac{1}{4} F_{\mu\nu}^{a}(x)F_{\mu\nu}^{a}(x) = \frac{1}{2} \tr\left( F_{\mu\nu}(x)F_{\mu\nu}(x)\right),
+        E = \frac{1}{4} F_{\mu\nu}^{a}(x)F_{\mu\nu}^{a}(x) = -\frac{1}{2} \tr\left( F_{\mu\nu}(x)F_{\mu\nu}(x)\right),
     \end{equation}
 where sum over repeated indices is assumed.
 A possibility of defining the energy density on the lattice is by using the plaquette
@@ -187,7 +183,7 @@ A possibility of defining the energy density on the lattice is by using the plaq
 \end{equation}
 or by using the more symmetric definition with the clover
 \begin{eqnarray}
-    E & = & \frac{1}{2V}\sum_{x,\mu,\nu}\tr\left[F^{\text{clover}}_{\mu\nu}F^{\text{clover}}_{\mu\nu} \right]\\
+    E & = & -\frac{1}{2V}\sum_{x,\mu,\nu}\tr\left[F^{\text{clover}}_{\mu\nu}F^{\text{clover}}_{\mu\nu} \right]\\
       & = & -\frac{1}{64V}\sum_{x,\mu<\nu} \re\tr\left( Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right)^2
 \end{eqnarray}
 
@@ -250,11 +246,34 @@ The fermion action for QCD reads
     S_{F}[\psi,\bar{\psi},U] = \sum_{f = 1}^{N_f} \sum_{x,y} \bar{\psi}^{(f)}_x D^{(f)}_{x,y} \psi^{(f)}_{y} .
 \end{equation}
 
+One usually computes the action of the Dirac operator on a vector $D\phi$
+\begin{equation}
+    D_{x,y;\alpha\beta}^{ab}\phi_{y,\beta}^{b} = (m_0+4)\phi_{x,\alpha}^{a} - \frac{1}{2}\sum_{\mu = \pm 1}^{\pm 4}\left(\mathds{1} - \gamma_{\mu} \right)_{\alpha\beta}U^{ab}_{x,\mu}\phi_{x+\hat{\mu},\beta}^{b}
+\end{equation}
+
+and $D^{\dagger}\phi$
+\begin{equation}
+    (D^{\dagger})_{x,y;\alpha\beta}^{ab}\phi_{y,\beta}^{b} = (m_0+4)\phi_{x,\alpha}^{a} - \frac{1}{2}\sum_{\mu = \pm 1}^{\pm 4}\left(\mathds{1} - \gamma_{\mu} \right)_{\alpha\beta}(U^{\dagger})^{ab}_{x-\hat{\mu},\mu}\phi_{x-\hat{\mu},\beta}^{b}
+\end{equation}
+
+\subsection{Hybrid Monte Carlo}
+In the Hybrid Monte Carlo method an auxiliary field $P\in\su{3}$ is created and a Hamiltonian is defined as
+ \begin{equation}
+     H = \frac{1}{2}P^2 + S[U,\phi]
+ \end{equation}
+ where 
+ \begin{equation}
+     S[U,\phi] = S_G[U]-\phi^{\dagger}(DD^{\dagger})^{-1}\phi
+ \end{equation}
+ and
+ \begin{equation}
+     P^2 = \sum_{x,\mu} P_{x,\mu}^2 = -\frac{1}{2}\sum_{x,\mu} \tr(P_{x,\mu}^2)
+ \end{equation}
 
 \subsection{Leapfrog}
     \begin{enumerate}
         \item Generate the pseudofermion field $\phi = D\chi$, where $\chi$ is distributed according to $\exp(-\chi^{\dagger}\chi)$.
-        \item Given a gauge configuration $[U]_0$ generate $[P]_0 \in \su{3}$ according to the Gaussian distribution $\exp(-\tr[P^2])$.
+        \item Given a gauge configuration $[U]_0$ generate $[P]_0 \in \su{3}$ according to the Gaussian distribution $\exp(\tr[P^2])$.
         \item Initial step
             \begin{equation}
                 P_{1/2} = P_0 - \left.\frac{\epsilon}{2}F[U,\phi]\right|_{U_0}.
@@ -262,15 +281,19 @@ The fermion action for QCD reads
         \item Intermediate steps
         For $k = 1, \dots, n - 1 $:
             \begin{equation}
-                U_{k} =  \exp\left( i\epsilon P_{k-\frac{1}{2}}\right)U_{k-1} , \ \ \ P_{k+\frac{1}{2}} = P_{k-\frac{1}{2}} - \left.\epsilon F[U,\phi]\right|_{U_k}
+                U_{k} =  \exp\left( \epsilon P_{k-\frac{1}{2}}\right)U_{k-1} , \ \ \ P_{k+\frac{1}{2}} = P_{k-\frac{1}{2}} - \left.\epsilon F[U,\phi]\right|_{U_k}
             \end{equation}
         \item Final step
             \begin{equation}
-                U_{n} =  \exp\left( i\epsilon P_{n-\frac{1}{2}}\right)U_{n-1} , \ \ \ P_{n} = P_{n-\frac{1}{2}} - \left.\frac{\epsilon}{2} F[U,\phi]\right|_{U_n}
+                U_{n} =  \exp\left( \epsilon P_{n-\frac{1}{2}}\right)U_{n-1} , \ \ \ P_{n} = P_{n-\frac{1}{2}} - \left.\frac{\epsilon}{2} F[U,\phi]\right|_{U_n}
             \end{equation}
         \item Monte Carlo step. Accept/reject the configuration at the end of the trajectory with probability
             \begin{equation}
                 \min\{1,\exp{\left(-\Delta H\right)}\}.
+            \end{equation}
+            where 
+            \begin{equation}
+                \Delta H = -\tr(P'^2) + \tr(P^2) + S_G[U'] - S_G[U] + \phi^{\dagger}\left( (D'D'^{\dagger})^{-1} - (DD^{\dagger})^{-1} \right)\phi
             \end{equation}
     \end{enumerate}
 

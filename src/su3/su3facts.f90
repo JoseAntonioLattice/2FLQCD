@@ -27,6 +27,7 @@ module su3facts
      real(dp) :: r(8)
    contains
      procedure :: init_su3alg
+     procedure :: init_su3alg_hermitian
      procedure :: tr => tr_su3alg
      procedure :: dagger => dagger_su3alg
   end type su3alg
@@ -300,17 +301,6 @@ contains
     tr_su3 = U%mat(1,1) +  U%mat(2,2) +  U%mat(3,3)
   end function tr_su3
 
-
-
-
-
-
- 
-
-  
-  
-  
-  
   subroutine create_kronecker_delta(delta,n)
     integer, intent(in) :: n
     complex(dp) :: delta(n,n)
@@ -320,8 +310,7 @@ contains
     do k = 1, n
        delta(k,k) = (1.0_dp,0.0_dp)
     end do
-    
-    
+        
   end subroutine create_kronecker_delta
 
   subroutine create_gellmann_matrices()
@@ -508,33 +497,46 @@ contains
     real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
     type(su3alg) :: A
     type(su3) :: C
-    
-    !A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
-    !A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
-    !A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    !C = exp(0.5_dp*i*A)
-    !U%mat = C%mat
 
     call init_su3alg(A,r1,r2,r3,r4,r5,r6,r7,r8)
     C = exp(A)
     U%mat = C%mat
   end subroutine init_su3
 
-  !Traceless antihermintian element A
+  
+  elemental subroutine init_su3_hermitian(U,r1,r2,r3,r4,r5,r6,r7,r8)
+    class(su3), intent(inout) :: U
+    real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
+    type(su3alg) :: A
+    type(su3) :: C
+    
+    call init_su3alg_hermitian(A,r1,r2,r3,r4,r5,r6,r7,r8)
+    C = exp(i*A)
+    U%mat = C%mat
+  end subroutine init_su3_hermitian
+
+  !Traceless antihermitian element A
   elemental subroutine init_su3alg(A,r1,r2,r3,r4,r5,r6,r7,r8)
     class(su3alg), intent(inout) :: A
     real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
     type(su3alg) :: res
-    !A =     r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3)
-    !A = A + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6)
-    !A = A + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
-    !U%mat = 0.5_dp*A%mat 
 
-    res =   r1*su3alg_gen(1) + r2*su3alg_gen(2) + r3*su3alg_gen(3) &
-          + r4*su3alg_gen(4) + r5*su3alg_gen(5) + r6*su3alg_gen(6) &
-          + r7*su3alg_gen(7) + r8*su3alg_gen(8)
-    A%mat = res%mat
+    call init_su3alg_hermitian(A,r1,r2,r3,r4,r5,r6,r7,r8)
+    A%mat = i*A%mat
   end subroutine init_su3alg
+
+  !Traceless Hermitian element A
+  elemental subroutine init_su3alg_hermitian(A,r1,r2,r3,r4,r5,r6,r7,r8)
+    class(su3alg), intent(inout) :: A
+    real(dp), intent(in) :: r1,r2,r3,r4,r5,r6,r7,r8
+    type(su3alg) :: res
+
+    res =   r1*gellmann_matrix(1) + r2*gellmann_matrix(2) + r3*gellmann_matrix(3) &
+          + r4*gellmann_matrix(4) + r5*gellmann_matrix(5) + r6*gellmann_matrix(6) &
+          + r7*gellmann_matrix(7) + r8*gellmann_matrix(8)
+    A%mat = 0.5_dp*res%mat 
+
+  end subroutine init_su3alg_hermitian
   
   elemental pure function su3alg_sum(A,B)
     type(su3alg), intent(in) :: A, B

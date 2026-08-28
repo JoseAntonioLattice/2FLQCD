@@ -43,3 +43,6 @@ build/obj/test.o: tests/test.f90
 
 test_run:
 	build/test
+
+clean:
+	rm -r build/obj/* build/mod/*

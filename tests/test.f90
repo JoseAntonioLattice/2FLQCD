@@ -20,27 +20,27 @@ program test
   call test_gamma5()
   call test_pbc()
 
-!!$  call test_sum_4x4matrices
-!!$  call test_substraction_4x4matrices()
-!!$
-!!$  call test_cold_start()
-!!$
-!!$  call test_su3_links
-!!$
-!!$  call test_gellmann_matrices
-!!$  call test_unitarity()
-!!$
-!!$  call test_assert_matrix()
-!!$  call test_plaquette()
-!!$
-!!$  call test_TA
-!!$  call test_su3alg
-!!$  
-!!$  call test_exp_su3alg
+  call test_sum_4x4matrices
+  call test_substraction_4x4matrices()
 
-  !call  test_gamma5hermiticity_of_Dirac_matrix()
-  !call test_conjugate_gradient
-  call test_clover()
+  call test_cold_start()
+
+  call test_su3_links
+
+  call test_gellmann_matrices
+  call test_unitarity()
+
+  call test_assert_matrix()
+  call test_plaquette()
+
+  call test_TA
+  call test_su3alg
+  
+  call test_exp_su3alg
+
+  call  test_gamma5hermiticity_of_Dirac_matrix()
+  call test_conjugate_gradient
+  !call test_clover()
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -316,7 +316,6 @@ contains
     type(matrix3x3) :: A
     type(su3) :: U, V, W
     complex(dp) :: D(3,3), t
-
     
     D = delta_3x3
     call U%init()
@@ -328,6 +327,7 @@ contains
     call assert_equal_complex_matrix("su3 link",U%mat,D,1.0E-12_dp)
     call assert_equal_complex("Tr 1 = 3", t,(3.0_dp,0.0_dp),1.0e-12_dp)
     call assert_equal_complex_matrix("product su3",W%mat,D,1.0e-12_dp)
+    
   end subroutine test_su3_links
 
   subroutine test_unitarity()
@@ -364,16 +364,26 @@ contains
     end do
 
     call assert_equal_complex_matrix("tr(l_i l_j) = 2d_ij",trace,2*delta,1.0e-12_dp)
+
+    write(*,*) "Test generators of su(3) Lie algebra "
+    do i = 1, 8
+       do j = 1, 8
+         trace(i,j) = tr(su3alg_gen(i)*su3alg_gen(j))
+       end do
+    end do
+
+    call assert_equal_complex_matrix("tr(T_i T_j) = -1/2 d_ij",trace,-0.5_dp*delta,1.0e-12_dp)
+
     
   end subroutine test_gellmann_matrices
 
   subroutine test_plaquette()
     integer, parameter :: n = 2
-    type(su3), dimension(4,n,n,n,n) :: U, V
-    type(su3), dimension(n,n,n,n) :: omega
-    real(dp), dimension(n,n,n,n) :: r1,r2,r3,r4,r5,r6,r7,r8
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U, V
+    type(su3), dimension(Lt,Lx,Ly,Lz) :: omega
+    real(dp), dimension(Lt,Lx,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8
     integer :: i,j,k,l,mu,nu
-    logical :: condition(4,4,n,n,n,n)
+    logical :: condition(4,4,Lt,Lx,Ly,Lz)
     type(su3) :: plq
     real(dp) :: tol = 1.0e-12_dp
     character(99) :: str
@@ -390,7 +400,7 @@ contains
 
     call omega%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
 
-    call set_pbc([n,n,n,n])
+    !call set_pbc([n,n,n,n])
     call gauge_transformation(U,omega)
 
     condition = .true.
@@ -499,8 +509,8 @@ contains
     call P%init_su3alg(r(1),r(2),r(3),r(4),r(5),r(6),r(7),r(8))
     pd = p%dagger()
     print*, "Test su(3) algebra element"
-    call assert_equal_complex("Tr u = 0", tr(p),(0.0_dp,0.0_dp),1.0e-12_dp)
-    call assert_equal_complex_matrix("u^dagger = u", pd%mat,p%mat,1.0e-12_dp)
+    call assert_equal_complex("Tr A = 0", tr(p),(0.0_dp,0.0_dp),1.0e-12_dp)
+    call assert_equal_complex_matrix("A^dagger = -A", pd%mat,-p%mat,1.0e-12_dp)
 
   end subroutine test_su3alg
 
@@ -568,7 +578,7 @@ contains
     integer :: t,x,y,z,a, mu
     real(dp), parameter :: tol = 1.0e-12_dp
       
-    call set_pbc(L)
+   
     
     call random_number(r1)
     call random_number(r2)
@@ -665,7 +675,7 @@ contains
     integer :: t,x,y,z,a, mu
     real(dp), parameter :: tol = 1.0e-6_dp
       
-    call set_pbc(L)
+    
     
     call random_number(r1)
     call random_number(r2)

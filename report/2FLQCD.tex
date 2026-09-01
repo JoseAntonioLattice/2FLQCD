@@ -11,7 +11,7 @@
 \usetikzlibrary{decorations.markings}
 \usetikzlibrary{math} %needed tikz library
 \usetikzlibrary{arrows}
-
+\newcommand*{\eps}{0.05}
 \usepackage{subcaption}
 
 \usepackage{dsfont}
@@ -21,6 +21,8 @@
 \newcommand{\SU}[1]{\text{SU}({#1})}
 
 \newcommand{\su}[1]{\mathfrak{su}({#1})}
+
+\usepackage{url}
 
 \begin{document}
 \maketitle
@@ -41,6 +43,10 @@ where $A\in\su{N}$ is traceless and anti-Hermitian, an element of the Lie algebr
         A = A^aT^a , \ \ \ A^a \in \mathbb{R},
     \end{equation}
     sum over repeated indices assumed.
+
+    
+    
+    
     We study the 4-dimensional SU(3) lattice gauge theory with the compact formulation. In this formulation we consider compact link variables $U_{x,\mu}\in \text{SU}(3)$ rather than the Lie algebra-valued fields $A_{x,\mu}$. The compact variables $U_{x,\mu}$ become the fundamental fields to be integrated over the functional integral. One great advantage of the compact formulation is that we no longer require to fix the gauge.
 
 Link variables are oriented, so they naturally live in the links between neighboring points on the lattice. Thus, the variable $U_{\mu}(x)$ is defined in the link between points $x$ and $x + \hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + \hat \mu$ pointing in the negative direction via
@@ -84,6 +90,35 @@ see Fig.\ \ref{fig:conjg_link}.
 \caption{Graphical representation of link variables.}
 \end{figure}
 
+\begin{figure}
+\centering
+\begin{tikzpicture}
+		\tikzset{middlearrow/.style={decoration={markings,mark= at position 0.6 with {\arrow{#1}} ,},postaction={decorate}}};
+		\draw[step=2cm,color=gray] (-1,-1) grid (3,3);
+		\draw[middlearrow={latex}, very thick,red] (0,0) --(2,0);
+		\draw[middlearrow={latex}, very thick,red] (2,0)--(2,2);
+		\draw[middlearrow={latex}, very thick,red] (2,2)--(0,2);
+		\draw[middlearrow={latex}, very thick,red] (0,2)--(0,0);
+		\filldraw[black] (0,0) circle(0.1);
+		\filldraw[black] (2,0) circle(0.1);
+		\filldraw[black] (2,2) circle(0.1);
+		\filldraw[black] (0,2) circle(0.1);
+		\draw[] (0,0) node[below left] {$x$};
+		\draw[] (2,0) node[below right] {$x+\hat\mu$};
+		\draw[] (0,2) node[above left] {$x+\hat\nu$};
+		\draw[] (2,2) node[above right] {$x+\hat\mu+\hat\nu$};
+		
+		\draw[] (5,1) node[] {plane $(\mu,\nu$)};
+		
+		\draw[blue] (1,0) node[below] {$U_{x,\mu}$};
+		\draw[blue] (2,1) node[right] {$U_{x+\hat\mu,\nu}$};	
+		\draw[blue] (1,2) node[above] {$U^*_{x+\hat\nu,\mu}$};
+		\draw[blue] (0,1) node[left] {$U^*_{x,\nu}$};
+			
+	\end{tikzpicture}
+	\caption{Plaquette $U_{x,\mu\nu}$.}
+\end{figure}
+
 Under a gauge transformation the link variables transform as
 \begin{equation}
 	U'_{x,\mu} = \Omega_x U_{x,\mu} \Omega_{x+\hat\mu}^{\dagger},
@@ -119,6 +154,54 @@ Staples
 	\label{eq:staples}
 	\Sigma_{x,\mu} = \sum_{\nu \neq \mu} \left[ U_{x,\nu}U_{x+\hat{\nu},\mu}U_{x+\hat{\mu},\nu}^{\dagger} + U_{x-\hat{\nu},\nu}^{\dagger}U_{x-\hat{\nu},\mu}U_{x+\hat{\mu}-\hat{\nu},\nu}\right]
 \end{equation}
+
+The change in the action  by a local update when changing $U_{\mu}(x) \to U'_{\mu}(x)$ is
+\begin{equation}
+	\label{eq:DS}
+	\Delta S = -\frac{\beta}{N} \text{Re } \text{Tr} \left[ \left( U'_{\mu}(x) - U_{\mu}(x) \right)\Sigma_{\mu}^{\dagger}\right]
+\end{equation}
+
+In SU(3) the SU(2) elements are of the form
+\begin{equation}
+\label{eq:SU2_subgroups}
+	R = \begin{pmatrix}
+		r_{11} & r_{12} & 0 \\
+		r_{21} & r_{22} & 0 \\
+		0      & 0      & 1 
+	\end{pmatrix},\ S = \begin{pmatrix}
+		s_{11} & 0 & s_{12} \\
+		0      & 1 & 0 \\
+		s_{21} & 0 & s_{22} 
+	\end{pmatrix},\ T = \begin{pmatrix}
+		1 & 0 & 0 \\
+		0 & t_{11} & t_{12} \\
+		0 & t_{21} & t_{22}
+	\end{pmatrix}.
+\end{equation}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=2]    
+\tikzset{middlearrow/.style={decoration={markings,mark= at position 0.6 with {\arrow{#1}} ,},postaction={decorate}}};
+   
+    \draw[white] (-\eps,-1-\eps) rectangle (1+\eps,1+\eps);
+    \draw[middlearrow={latex}] (0,\eps) -- (0,1);
+    \draw[middlearrow={latex}] (0,1) -- (1,1);
+    \draw[middlearrow={latex}] (1,1) -- (1,\eps);
+    
+    \draw[middlearrow={latex}] (0,-\eps) -- (0,-1);
+    \draw[middlearrow={latex}] (0,-1) -- (1,-1);
+    \draw[middlearrow={latex}] (1,-1) -- (1,-\eps);
+    
+    
+    \draw[blue, very thick,-latex] (0,0) -- (1,0);
+    \draw (0.5,0) node[above] {$U_{x,\mu}$};
+   
+    \draw[-latex] (2.5,0)--(3,0) node[above]{$\hat\mu$};
+    \draw[-latex] (2.5,0)--(2.5,0.5) node[right]{$\hat\nu$};
+\end{tikzpicture}
+\caption{Sum of staples $\Sigma_{x,\mu}$.}
+\end{figure}
 
 \subsection{Field strength tensor}
 
@@ -187,6 +270,133 @@ or by using the more symmetric definition with the clover
       & = & -\frac{1}{64V}\sum_{x,\mu<\nu} \re\tr\left( Q_{x,\mu\nu} -  Q_{x,\mu\nu}^{\dagger}\right)^2
 \end{eqnarray}
 
+
+
+
+	\subsection{Polyakov Loop}
+	The polyakov loop is defined as the product of the link variables in the Euclidean time direction over a closed loop
+	\begin{equation}
+		P(\vec{x}\,) = \text{Tr}\,\prod_{t_\text{E}=1}^{L_t}U_4(\vec{x},t_\text{E}).
+	\end{equation}
+
+\subsection{Static quark potential}
+One important quantity involving Polyakov loops is their correlation. The correlation function of Polyakov loops is related to the static quark potential $V(r)$ as
+\begin{equation}
+	\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle \propto e^{-L_t a V(r)} \left(1 +\mathcal{O}\left( e^{-L_t a \Delta E}\right) \right),
+\end{equation}
+where $r = |\vec{x} - \vec{y}\,|$. Numerically speaking, we compute
+
+\begin{equation}
+	\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle = \frac{1}{3V}\sum_{x,\mu = 1,2,3}  P(\vec{x}\,) P\left(\vec{x}+r\hat{\mu}\right)^{\dagger}.
+\end{equation}
+
+ Up to a constant the static quark potential is
+\begin{equation}
+	aV(r) = - \log(\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle)/L_t.
+\end{equation}
+
+We use the Cornell potential to parametrize $V(r)$
+\begin{equation}
+	V(r) = A + \frac{B}{r} + \sigma r,
+\end{equation}
+here $A$ is an irrelevant additive constant, $B$ is the Coulomb part of the potential and $\sigma$ is the so called \textit{string tension}.
+
+\section{Setting physical scales}
+One method of defining a physical scale is related to the static potential. First the Sommer parameter is defined as $r_0 \approx 0.5 \ \text{fm}$, is a physical length where, roguhly speaking, the potential becomes linear.
+
+First we compute the force 
+\begin{equation}
+	\label{eq:force}
+	-F(r) = \frac{dV(r)}{dr} = \sigma - \frac{B}{r^2}.
+\end{equation}
+
+Using experimental data for heavy quark-antiquark pairs ($\bar{b}b$ and $\bar{c}c$) it is found that 
+\begin{equation}
+	-F(r_0)r_0^2 = 1.65, \ \ \ \text{where} \ \ \ r_0 \simeq 0.5 \ \text{fm}.
+\end{equation}
+Using the form of the force in eq.\ \eqref{eq:force} 
+	\begin{equation}
+		-F(r)r_0^2 = \sigma r_0^2 - B = 1.65,
+	\end{equation}
+which implies
+	\begin{equation}
+		r_0 = \sqrt{\frac{1.65+B}{\sigma}},
+	\end{equation}
+or in lattice units
+	\begin{equation}
+		\frac{r_0}{a} = \sqrt{\frac{1.65+B}{a^2\sigma}}.
+	\end{equation}
+
+The parameters $B$ and $a^2\sigma$ can be obtained by a fit to the function
+\begin{equation}
+	aV(an) = aA+\frac{B}{n} + a^2\sigma n,
+\end{equation}	
+	where $r = a n$ and $n\in \mathbb{N}$.
+	Once obtained the dimensionless quantity $X = r_0/a$, the lattice spacing in physical units is $a = 0.5/X \ \text{fm}$.
+	
+	The temperature $T$ can be extracted by
+	\begin{equation}
+	\frac{1}{T}= a L_t .
+\end{equation}	 
+\section{Algorithms}
+
+
+
+\subsection{Metropolis}
+\begin{enumerate}
+	\item Given some gauge field configuration, we go through all the lattice points in a lexicographic way. At each point $x$ in the $\mu$ direction we generate a random SU(3) matrix $U'_{\mu}(x)$.
+	
+	\item We compute the sum of the staples and compute the change of the action according to eq.\ \eqref{eq:DS}. We generate a uniform random number $r\in [0,1)$ and accept the change if $r \leq p$, where $p$ is
+	\begin{equation}
+		p = \min (1, \exp(-\Delta S)).
+\end{equation}	 
+\end{enumerate}
+
+\subsection{Heatbath}
+The heatbath algorithm was first implemented by Creutz for the SU(2) theory \cite{creutz1980} and generalized to SU($N$) theories by Cabbibo and Marinari \cite{cabbibo1982}. The idea for implementing the algorithm in SU($N$) is to iterate over a set of SU(2) subgroups in SU($N$) and apply the heatbath algorithm to these SU(2) elements. 
+
+\begin{enumerate}
+	\item Given some field configuration at a point $x$ and direction $\mu$, we find the sum of staples $\Sigma_{\mu}(x)$ in eq.\ \eqref{eq:staples}.
+	
+	\item We compute $W = U_{\mu}(x) \Sigma_{\mu}^{\dagger}(x)$ and define $W_2$ as the $2\times 2$ submatrix of $W$ that has the same block structure as $R$ (or $S$ or $T$).
+	
+	\item $W_2$ is a complex $2\times 2$ matrix which is generally not an element of SU(2). As described in Ref.\ \cite{kennedy1985}, we generate a matrix proportional to an SU(2) element from $W_2$ as follows
+	\begin{equation}
+	V = \frac{1}{2} \left[ W_2 - W_2^{\dagger} + \mathds{1}\text{Tr}\ W_2^{\dagger}\right]
+	\end{equation}
+	\item We compute the determinant of $V$ and take $\xi = \sqrt{\det V}$
+	
+	\item We follow the original heatbath implementation of Creutz. We generate a uniform random number $r \in [\exp(-\frac{4}{3}\beta \xi),1]$ and compute
+	\begin{equation}
+		x_0 = 1 + \frac{\log r}{\frac{2}{3}\beta \xi}.
+	\end{equation}		
+	
+	Now we generate a uniform random number $u\in [0,1)$ and accept $x_0$ if $ u > 1 - \sqrt{1-x_0^2}$. Repeat this step until a $x_0$ is accepted.
+	
+	\item We now generate a vector $\vec{x} = (x_1,x_2,x_3)$ in the unit 2-sphere uniformly distributed. This may be acomplished as follows. We generate three random numbers $\vec{r} = (r_1,r_2,r_3)$ in the interval $[-1,1]$ and accept them if they are inside the unit 3-sphere. Otherwise we generate other three numbers until they are accepted. Once they are accepted we take
+	\begin{equation}
+		\vec{x} = \sqrt{1 - x_0^2} \frac{\vec{r}}{|\vec{r}\,|}.
+	\end{equation}
+	\item We have generated the elements of a SU(2) matrix $X$
+	\begin{equation}
+		X = \begin{pmatrix}
+			x_0 + ix_1 & x_2 + ix_3 \\
+		   -x_2 + ix_3 & x_0 - ix_1
+		\end{pmatrix}
+	\end{equation}
+	\item We take
+		\begin{equation}
+			R_2 = X \frac{V^{\dagger}}{\xi}.
+		\end{equation}
+		And transform this $2\times 2$ matrix to the same block structure as the $3\times 3$ matrix $R$ (or $S$ or $T$).
+		\item We go to step 2 and repeat the process to generate $S$ (or $T$) but this time taking $W = R U_{\mu}(x)\Sigma_{\mu}(x)$ (or $W = S R U_{\mu}(x)\Sigma_{\mu}(x)$).
+	\item The new link element $U'_{\mu}(x)$ is
+	\begin{equation}
+		U'_{\mu}(x) = T S R U_{\mu}(x).
+	\end{equation}			
+\end{enumerate}
+
+
 \section{Wilson Flow}
 
 The Wilson flow is a smoothing procedure that averages the gauge field over a space sphere of radius $\sqrt{8t}$. 
@@ -202,6 +412,11 @@ The Wilson flow is a smoothing procedure that averages the gauge field over a sp
 \begin{equation}
     W_{\text{TA}} = \frac{W - W^{\dagger}}{2} - \frac{\text{Tr} (W - W^{\dagger})}{2N}
 \end{equation}
+and it can be proved that
+\begin{equation}
+    W_{\text{TA}} = -2T^i\re\tr\left\{T^i W \right\}.
+\end{equation}
+
 
 The Euler version reads
 \begin{equation}
@@ -230,6 +445,8 @@ At $\beta = 6.42$ the lattice spacing is $a = 0.0498(3)$ fm and $t_0/a^2 = 11.24
     \includegraphics[scale=0.5]{WF_32x16.pdf}
     \caption{Simulation at $\beta = 6.42$ that corresponds to $a = 0.0498$ fm. With this volume finite size effects are strong. The integration scheme is done with RK3.}
 \end{figure}
+
+
 
 \section{Dynamical quarks}
 Dirac matrix 
@@ -276,16 +493,16 @@ In the Hybrid Monte Carlo method an auxiliary field $P\in\su{3}$ is created and 
         \item Given a gauge configuration $[U]_0$ generate $[P]_0 \in \su{3}$ according to the Gaussian distribution $\exp(\tr[P^2])$.
         \item Initial step
             \begin{equation}
-                P_{1/2} = P_0 - \left.\frac{\epsilon}{2}F[U,\phi]\right|_{U_0}.
+                P_{1/2} = P_0 - \frac{\epsilon}{2}F[U_0,\phi].
             \end{equation}
         \item Intermediate steps
         For $k = 1, \dots, n - 1 $:
             \begin{equation}
-                U_{k} =  \exp\left( \epsilon P_{k-\frac{1}{2}}\right)U_{k-1} , \ \ \ P_{k+\frac{1}{2}} = P_{k-\frac{1}{2}} - \left.\epsilon F[U,\phi]\right|_{U_k}
+                U_{k} =  \exp\left( \epsilon P_{k-\frac{1}{2}}\right)U_{k-1} , \ \ \ P_{k+\frac{1}{2}} = P_{k-\frac{1}{2}} - \epsilon F[U_k,\phi]
             \end{equation}
         \item Final step
             \begin{equation}
-                U_{n} =  \exp\left( \epsilon P_{n-\frac{1}{2}}\right)U_{n-1} , \ \ \ P_{n} = P_{n-\frac{1}{2}} - \left.\frac{\epsilon}{2} F[U,\phi]\right|_{U_n}
+                U_{n} =  \exp\left( \epsilon P_{n-\frac{1}{2}}\right)U_{n-1} , \ \ \ P_{n} = P_{n-\frac{1}{2}} - \frac{\epsilon}{2} F[U_n,\phi]
             \end{equation}
         \item Monte Carlo step. Accept/reject the configuration at the end of the trajectory with probability
             \begin{equation}
@@ -298,25 +515,38 @@ In the Hybrid Monte Carlo method an auxiliary field $P\in\su{3}$ is created and 
     \end{enumerate}
 
 \begin{equation}
-    F[U,\phi] = \sum_{a = 1}^8 T^a \nabla^{(a)} \left(S_G[U] + \phi^{\dagger}(DD^{\dagger})^{-1}\phi \right) \in \su{3}
+    F[U,\phi] = \sum_{a = 1}^8 T^i \nabla^{(i)} \left(S_G[U] + \phi^{\dagger}(DD^{\dagger})^{-1}\phi \right) \in \su{3}
 \end{equation}
 
 We define the auxiliary fields
 \begin{equation}
-    \chi = \left(DD^{\dagger}\right)^{-1}\phi, \ \ \ \psi = D^{\dagger} \chi .
+    \psi = \left(DD^{\dagger}\right)^{-1}\phi, \ \ \ \chi = D^{\dagger} \psi .
 \end{equation}
+
+The force
+\begin{eqnarray}
+    \frac{\partial}{\partial \omega^i_{x,\mu}}\phi^{\dagger}\left( DD^{\dagger}\right)^{-1}\phi & = & -\phi^{\dagger}\left( DD^{\dagger}\right)^{-1} \frac{\partial DD^{\dagger}}{\partial \omega^i(x)} \left( DD^{\dagger}\right)^{-1} \phi \\
+    & = & -\phi^{\dagger}\left[\left( DD^{\dagger}\right)^{-1}\left( \frac{\partial D}{\partial \omega^i_{x,\mu}}D^{\dagger}+D\frac{\partial D^{\dagger}}{\partial \omega^i_{x,\mu}}\right) \left( DD^{\dagger}\right)^{-1} \right]\phi \\
+    & = & -2\re\left(\psi^{\dagger}\frac{\partial D}{\partial \omega^i_{x,\mu}}\chi \right)
+\end{eqnarray}
+
+with
+\begin{eqnarray}
+    \frac{\partial D_{y,z}\chi_z}{\partial \omega_{x,\mu}^i} & = & -\delta_{x,y}\frac{\mathds{1}-\gamma_{\mu}}{2}T^iU_{x,\mu}\chi_{x+\hat{\mu}}+\delta_{x+\hat{\mu},y}\frac{\mathds{1}+\gamma_{\mu}}{2}U^{\dagger}_{k,\mu}T^i\chi_{x}
+\end{eqnarray}
+
 The fermionic part of the force
 \begin{eqnarray}
-    \left(F_{\text{f}}\right)^i_{x,\mu} & = & \re\left\{ \left[T^i\right]^{ab}U_{x,\mu}^{bc} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}^c \left(\psi^{a}_{x,\alpha}\right)^*\right\} \\
-     & - & \re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \chi_{x,\beta}^{c} (\psi_{x+\hat{\mu},\alpha}^a)^* \right \} \\
-     & = & \re \left\{\left[T^i\right]^{ab}U_{x,\mu}^{bc} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha} \right)^{ca} \right\} \\
-     & - & \re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right)^{ca} \right \} \\
-     & = & \re\tr\left\{T^iU_{x,\mu} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha}\right) \right\} \\
-     & - & \re \tr \left\{ U_{x,\mu}^{\dagger}T^i\left( 1+\gamma_{\mu}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right) \right \} 
+    \left(F_{\text{f}}\right)^i_{x,\mu} & = & -2\re\left\{-\left[T^i\right]^{ab}U_{x,\mu}^{bc} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}^c \left(\psi^{a}_{x,\alpha}\right)^*\right\} \\
+     &  & -2\re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left( \frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \chi_{x,\beta}^{c} (\psi_{x+\hat{\mu},\alpha}^a)^* \right \} \\
+     & = & -2\re \left\{-\left[T^i\right]^{ab}U_{x,\mu}^{bc} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha} \right)^{ca} \right\} \\
+     &  & -2\re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right)^{ca} \right \} \\
+     & = & -2\re\tr\left\{-T^iU_{x,\mu} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha}\right) \right\} \\
+     &  & -2\re \tr \left\{ U_{x,\mu}^{\dagger}T^i\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right) \right \} 
 \end{eqnarray}
 Then
 \begin{equation}
-    \left(F_{\text{f}}\right)_{x,\mu} = \frac{1}{2}\left\{ U_{x,\mu} \left( 1-\gamma_{\mu}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}\otimes\psi^{\dagger}_{x,\alpha} - U_{x,\mu}^{\dagger}\left( 1+\gamma_{\mu}\right)_{\alpha\beta}       \chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha} \right\}_{\text{TA}}
+    \left(F_{\text{f}}\right)_{x,\mu} = \left\{-U_{x,\mu} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}\otimes\psi^{\dagger}_{x,\alpha} + U_{x,\mu}^{\dagger}\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta}       \chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha} \right\}_{\text{TA}}
 \end{equation}
 
 \begin{figure}
@@ -324,6 +554,32 @@ Then
     \includegraphics[scale=0.5]{plq.pdf}
     \caption{Plaquette value of the pure gauge SU(3) theory with $m_0=\infty$ using heatbath and with dynamical quarks at $m_0 = 100$ with hybrid Monte Carlo.}
 \end{figure}
+
+
+\section{Topological charge density}
+
+The topological charge $Q[U]$ of a configuration $[U]$ is defined as the sum over the lattice of the topological charge density $q(x)$ 
+\begin{equation}
+    q(x) = -\frac{1}{32\pi^2}\varepsilon_{\mu\nu\rho\sigma} \text{Tr} \left\{ F_{\mu\nu}(x)F_{\rho\sigma}(x)\right\}.
+\end{equation}
+On the lattice, we can define the topological charge with the clover or plaquette definitions of $F_{x,\mu\nu}$. Using the symmetries of the clover definition we can reduce the number of sums to be computed. First, we note that only 24 elements of the Levi-Civita symbol are non-zero. We also note that
+\begin{eqnarray}
+    \varepsilon_{\mu\nu\rho\sigma} \text{Tr} \left\{ F^{\text{clover}}_{x,\mu\nu}F^{\text{clover}}_{x,\rho\sigma}\right\} & = & \varepsilon_{\nu\mu\rho\sigma} \text{Tr} \left\{ F^{\text{clover}}_{x,\nu\mu}F^{\text{clover}}_{x,\rho\sigma}\right\} \\
+    \varepsilon_{\mu\nu\rho\sigma} \text{Tr} \left\{ F^{\text{clover}}_{x,\mu\nu}F^{\text{clover}}_{x,\rho\sigma}\right\} & = & \varepsilon_{\mu\nu\sigma\rho} \text{Tr} \left\{ F^{\text{clover}}_{x,\mu\nu}F^{\text{clover}}_{x,\sigma\rho}\right\} \\
+    \varepsilon_{\mu\nu\rho\sigma} \text{Tr} \left\{ F^{\text{clover}}_{x,\mu\nu}F^{\text{clover}}_{x,\rho\sigma}\right\} & = & \varepsilon_{\rho\sigma\mu\nu} \text{Tr} \left\{F^{\text{clover}}_{x,\rho\sigma}F^{\text{clover}}_{x,\mu\nu}\right\}
+\end{eqnarray} 
+This reduces the number of effective sums by a factor of 8. From the original 24 sums we only need to perform 3.
+
+Using $Q$ instead of $F$ we arrive at
+\begin{equation}
+    \text{Tr}\{F^{\text{clover}}_{\mu\nu}(x)F^{\text{clover}}_{\rho\sigma}(x)\} =\frac{1}{2^5} \text{Tr}\left\{Q_{\mu\nu}(x)[Q_{\rho\sigma}(x)-Q_{\rho\sigma}^{\dagger}(x)]\right\}
+\end{equation}
+We choose the 3 independent permutations of $\varepsilon_{\mu\nu\rho\sigma}$ to be in the indices $[1,2,3,4]$, $[1,3,2,4]$ and $[1,4,2,3]$. Therefore,
+\begin{equation}
+    q^{\text{clover}}(x) = -\frac{1}{128 \pi^2} \sum_{[\mu\nu\rho\sigma] \in\{ [1234], [1324], [1423]\}}
+              \varepsilon_{\mu\nu\rho\sigma}\text{Tr}(Q_{\mu\nu}[Q_{\rho\sigma}-Q_{\rho\sigma}^{\dagger}]) 
+\end{equation}
+
 
 \section{Acknowledgements}
 The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.
@@ -352,7 +608,7 @@ J.\ Chem.\ Phys.\ {\bf 21} (1953) 1087.
 
 \bibitem{luscher2014} M.\ L\"uscher, \emph{Properties and uses of the Wilson flow in lattice QCD}, 2014.
 
+\bibitem{2flqcd} J.A.\ García-Hernández, Lattice QCD code: \url{https://github.com/JoseAntonioLattice/2FLQCD.git}
 \end{thebibliography}
-
 
 \end{document}

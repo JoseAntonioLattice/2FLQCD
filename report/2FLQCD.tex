@@ -49,7 +49,7 @@ where $A\in\su{N}$ is traceless and anti-Hermitian, an element of the Lie algebr
     
     We study the 4-dimensional SU(3) lattice gauge theory with the compact formulation. In this formulation we consider compact link variables $U_{x,\mu}\in \text{SU}(3)$ rather than the Lie algebra-valued fields $A_{x,\mu}$. The compact variables $U_{x,\mu}$ become the fundamental fields to be integrated over the functional integral. One great advantage of the compact formulation is that we no longer require to fix the gauge.
 
-Link variables are oriented, so they naturally live in the links between neighboring points on the lattice. Thus, the variable $U_{\mu}(x)$ is defined in the link between points $x$ and $x + \hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + \hat \mu$ pointing in the negative direction via
+Link variables are oriented, so they naturally live in the links between neighboring points on the lattice. Thus, the variable $U_{x,\mu}$ is defined in the link between points $x$ and $x + \hat \mu$ in the positive $\mu$ direction, see Fig.\ \ref{fig:link}. We define the variable between points $x$ and $x + \hat \mu$ pointing in the negative direction via
 \begin{equation}
 	U_{x+\hat\mu,-\mu} \equiv  U^{\dagger}_{x,\mu}, 
 \end{equation}
@@ -112,8 +112,8 @@ see Fig.\ \ref{fig:conjg_link}.
 		
 		\draw[blue] (1,0) node[below] {$U_{x,\mu}$};
 		\draw[blue] (2,1) node[right] {$U_{x+\hat\mu,\nu}$};	
-		\draw[blue] (1,2) node[above] {$U^*_{x+\hat\nu,\mu}$};
-		\draw[blue] (0,1) node[left] {$U^*_{x,\nu}$};
+		\draw[blue] (1,2) node[above] {$U^{\dagger}_{x+\hat\nu,\mu}$};
+		\draw[blue] (0,1) node[left] {$U^{\dagger}_{x,\nu}$};
 			
 	\end{tikzpicture}
 	\caption{Plaquette $U_{x,\mu\nu}$.}
@@ -155,10 +155,10 @@ Staples
 	\Sigma_{x,\mu} = \sum_{\nu \neq \mu} \left[ U_{x,\nu}U_{x+\hat{\nu},\mu}U_{x+\hat{\mu},\nu}^{\dagger} + U_{x-\hat{\nu},\nu}^{\dagger}U_{x-\hat{\nu},\mu}U_{x+\hat{\mu}-\hat{\nu},\nu}\right]
 \end{equation}
 
-The change in the action  by a local update when changing $U_{\mu}(x) \to U'_{\mu}(x)$ is
+The change in the action  by a local update when changing $U_{x,\mu} \to U'_{x,\mu}$ is
 \begin{equation}
 	\label{eq:DS}
-	\Delta S = -\frac{\beta}{N} \text{Re } \text{Tr} \left[ \left( U'_{\mu}(x) - U_{\mu}(x) \right)\Sigma_{\mu}^{\dagger}\right]
+	\Delta S = -\frac{\beta}{N} \text{Re } \text{Tr} \left[ \left( U'_{x,\mu} - U_{x,\mu} \right)\Sigma_{x,\mu}^{\dagger}\right]
 \end{equation}
 
 In SU(3) the SU(2) elements are of the form
@@ -542,11 +542,11 @@ The fermionic part of the force
      & = & -2\re \left\{-\left[T^i\right]^{ab}U_{x,\mu}^{bc} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha} \right)^{ca} \right\} \\
      &  & -2\re \left\{ (U_{x,\mu}^{\dagger})^{ab}[T^i]^{bc}\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right)^{ca} \right \} \\
      & = & -2\re\tr\left\{-T^iU_{x,\mu} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x+\hat{\mu},\beta}\otimes \psi^{\dagger}_{x,\alpha}\right) \right\} \\
-     &  & -2\re \tr \left\{ U_{x,\mu}^{\dagger}T^i\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi_{x+\hat{\mu},\alpha}\right) \right \} 
+     &  & -2\re \tr \left\{ U_{x,\mu}^{\dagger}T^i\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta} \left(\chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha}\right) \right \} 
 \end{eqnarray}
 Then
 \begin{equation}
-    \left(F_{\text{f}}\right)_{x,\mu} = \left\{-U_{x,\mu} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}\otimes\psi^{\dagger}_{x,\alpha} + U_{x,\mu}^{\dagger}\left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta}       \chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha} \right\}_{\text{TA}}
+    \left(F_{\text{f}}\right)_{x,\mu} = \left\{-U_{x,\mu} \left(\frac{1-\gamma_{\mu}}{2}\right)_{\alpha\beta} \chi_{x+\hat{\mu},\beta}\otimes\psi^{\dagger}_{x,\alpha} + \left(\frac{1+\gamma_{\mu}}{2}\right)_{\alpha\beta}       \chi_{x,\beta}\otimes \psi^{\dagger}_{x+\hat{\mu},\alpha}U_{x,\mu}^{\dagger} \right\}_{\text{TA}}
 \end{equation}
 
 \begin{figure}
@@ -572,12 +572,12 @@ This reduces the number of effective sums by a factor of 8. From the original 24
 
 Using $Q$ instead of $F$ we arrive at
 \begin{equation}
-    \text{Tr}\{F^{\text{clover}}_{\mu\nu}(x)F^{\text{clover}}_{\rho\sigma}(x)\} =\frac{1}{2^5} \text{Tr}\left\{Q_{\mu\nu}(x)[Q_{\rho\sigma}(x)-Q_{\rho\sigma}^{\dagger}(x)]\right\}
+    \text{Tr}\left\{F^{\text{clover}}_{x,\mu\nu}F^{\text{clover}}_{x,\rho\sigma}\right\} =\frac{1}{2^5} \re\text{Tr}\left\{Q_{x,\mu\nu}\left[Q_{x,\rho\sigma}-Q_{x,\rho\sigma}^{\dagger}\right]\right\}
 \end{equation}
 We choose the 3 independent permutations of $\varepsilon_{\mu\nu\rho\sigma}$ to be in the indices $[1,2,3,4]$, $[1,3,2,4]$ and $[1,4,2,3]$. Therefore,
 \begin{equation}
-    q^{\text{clover}}(x) = -\frac{1}{128 \pi^2} \sum_{[\mu\nu\rho\sigma] \in\{ [1234], [1324], [1423]\}}
-              \varepsilon_{\mu\nu\rho\sigma}\text{Tr}(Q_{\mu\nu}[Q_{\rho\sigma}-Q_{\rho\sigma}^{\dagger}]) 
+    q^{\text{clover}}_x = -\frac{1}{128 \pi^2} \sum_{[\mu\nu\rho\sigma] \in\{ [1234], [1324], [1423]\}}
+              \varepsilon_{\mu\nu\rho\sigma}\re\tr\left(Q_{x,\mu\nu}\left[Q_{x,\rho\sigma}-Q_{x,\rho\sigma}^{\dagger}\right]\right) 
 \end{equation}
 
 

@@ -28,7 +28,7 @@ contains
     if(nbeta == 1) then
        beta(1) = betai
     else
-       beta = [(betai +i*(betaf-betai)/(nbeta-1), i = 0, nbeta - 1)]
+       beta = [(betai + i*(betaf-betai)/(nbeta-1), i = 0, nbeta - 1)]
     end if
   end subroutine initialize
   
@@ -90,7 +90,6 @@ contains
 
   end subroutine measurements
 
-
   subroutine simulation(U,beta)
     use starts
     use statistics
@@ -133,6 +132,5 @@ contains
     end do
 
   end subroutine simulation
-   
-  
+     
 end module dynamics

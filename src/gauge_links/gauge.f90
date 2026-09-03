@@ -81,14 +81,14 @@ contains
     staples%mat = sum%mat
   end function staples
 
-  function Z(U,x,mu)
+  function ZETA(U,x,mu) result(Z)
     type(su3alg) :: Z
     type(su3), dimension(:,:,:,:,:), intent(in) :: U
     integer, intent(in) :: x(4), mu
     type(matrix3x3) :: Z1
     Z1 = -TA(U(mu,x(1),x(2),x(3),x(4)) * dagger(staples(U,x,mu)) )
     Z%mat = Z1%mat
-  end function Z
+  end function ZETA
 
   function clover(U,x,mu,nu)
     type(su3), dimension(:,:,:,:,:), intent(in) :: U

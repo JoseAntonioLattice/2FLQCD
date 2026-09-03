@@ -5,6 +5,7 @@ module save
   use parameters, only : L, Lt, Lx, Ly, Lz, m0
   use su3facts
   implicit none
+  
 contains
 
   subroutine save_configuration(U,beta)

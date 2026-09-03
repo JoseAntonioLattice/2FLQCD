@@ -2,7 +2,7 @@ module GF
   use parameters, only : Lt, Lx, Ly, Lz, epsilon, N
   use su3facts
   use observables
-  use gauge, Zeta => Z
+  use gauge
   implicit none
   integer, parameter, private :: dp = 8
 contains
@@ -59,10 +59,10 @@ contains
     open(unit = 666, file = "data/WF.dat")
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S = energy_density(U)
-    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X)') 0, 0.0_dp, S, energy_density_clover(U)
+    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X,F18.10)') &
+         0, 0.0_dp, S, energy_density_clover(U), topological_charge_clover(U)
 
     wilson_time: do it = 1, N
-          
        do t = 1, Lt
           do x = 1, Lx
              do y = 1, Ly
@@ -88,8 +88,7 @@ contains
              end do
           end do
        end do
-       
-       
+              
        B = 8.0_dp/9.0_dp*Z1-17.0_dp/36.0_dp*Z0
        W2 = exp(B)*W1
        
@@ -107,7 +106,8 @@ contains
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
-       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') it, it*epsilon, S, energy_density_clover(U)
+       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X,F18.10)') &
+            it, it*epsilon, S, energy_density_clover(U), topological_charge_clover(U)
        flush(666)
     end do wilson_time
     close(666)

@@ -2,10 +2,11 @@ module observables
   
   use su3facts
   use parameters, only : L, Lt, Lx, Ly, Lz
-  use gauge, zeta => Z
+  use gauge
   implicit none
 
   integer, parameter, private :: dp = 8
+  real(dp), parameter, private :: pi = acos(-1.0_dp)
   
 contains
 
@@ -143,6 +144,44 @@ contains
     E = -E/(64.0_dp*product(L))
   end function energy_density_clover2
 
+  function unormalized_topological_charge_density_clover(U) result(q)
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    integer :: t, x, y, z
+    type(matrix3x3) :: Q34, Q24, Q23
+    real(dp) :: q(Lt,Lx,Ly,Lz)
+    
+    do t = 1, Lt
+       do x = 1, Lx
+          do y = 1, Ly
+             do z = 1, Lz
+                Q34 = clover(U,[t,x,y,z],3,4)
+                Q34 = Q34 - dagger(Q34)
+
+                Q24 = clover(U,[t,x,y,z],2,4)
+                Q24 = Q24 - dagger(Q24)
+
+                Q23 = clover(U,[t,x,y,z],2,3)
+                Q23 = Q23 - dagger(Q23)
+        
+                q(t,x,y,z) = real(tr(clover(U,[t,x,y,z],1,2)*Q34) &
+                                - tr(clover(U,[t,x,y,z],1,3)*Q24) &
+                                + tr(clover(U,[t,x,y,z],1,4)*Q23))
+             end do
+          end do
+       end do
+    end do
+        
+  end function unormalized_topological_charge_density_clover
+
+  function topological_charge_clover(U) result(q)
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    integer :: t, x, y, z
+    type(matrix3x3) :: Q34, Q24, Q23
+    real(dp) :: q
+
+    q = -1/(128*pi**2)*sum(unormalized_topological_charge_density_clover(U))
+    
+  end function topological_charge_clover
   
 end module observables
 

@@ -4,7 +4,7 @@ module hybridMC
   use dirac
   use su3facts
   use CG
-  use gauge,  Zeta => Z
+  use gauge
   implicit none
   
   integer, parameter, private :: dp = 8
@@ -31,20 +31,17 @@ contains
     Pnew = P - 0.5*epsilon * Force(U,psi,chi,beta,mod)
     psiold = psi
     do k = 1, N - 1
-       Unew = exp( epsilon*Pnew)*Unew
+       Unew = exp(epsilon*Pnew)*Unew
        psi = conjugate_gradient(phi,Unew)
        chi = Ddagger(psi,Unew)
        Pnew = Pnew - epsilon * Force(Unew,psi,chi,beta,mod)
-    
     end do
-    Unew = exp( epsilon*Pnew)*Unew
+    Unew = exp(epsilon*Pnew)*Unew
        
     psi = conjugate_gradient(phi,Unew)
     chi = Ddagger(psi,Unew)
     Pnew = Pnew - 0.5*epsilon*Force(Unew,psi,chi,beta,mod)
 
-    
-    
   end subroutine leapfrog
 
   
@@ -77,11 +74,8 @@ contains
     psi = conjugate_gradient(phi,Unew)
     chi = Ddagger(psi,Unew)
     Pnew = Pnew - 0.5*epsilon*Force(Unew,psi,chi,beta,mod)
-
-    
     
   end subroutine leapfrog_hermitian
-
   
   subroutine hmc(U,beta,acceptance_rate)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
@@ -155,7 +149,6 @@ contains
     
   end subroutine hmc
 
-
   function Force_antiHermitian(U,psi,chi,beta) result(F)
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: F
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(in) :: U
@@ -168,7 +161,6 @@ contains
     type(matrix3x3) :: WTA
     type(su3) :: dagU
     
-
 
     do t = 1, Lt
        do x = 1, Lx
@@ -192,8 +184,8 @@ contains
                       end do
                    end do
 
-                   W%mat = sgnp(mu,t)*matmul(U(mu,t,x,y,z)%mat,res1) - sgnp(mu,t)*matmul(res2,dagU%mat)
-                   WTA = -0.5_dp*TA(W)
+                   W%mat = -sgnp(mu,t)*matmul(U(mu,t,x,y,z)%mat,res1) + sgnp(mu,t)*matmul(res2,dagU%mat)
+                   WTA = 0.5_dp*TA(W)
                    ZetaU = -beta/6.0_dp*Zeta(U,[t,x,y,z],mu)
                    f(mu,t,x,y,z)%mat = ZetaU%mat + WTA%mat  
                 end do

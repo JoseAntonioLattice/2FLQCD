@@ -276,23 +276,23 @@ or by using the more symmetric definition with the clover
 	\subsection{Polyakov Loop}
 	The polyakov loop is defined as the product of the link variables in the Euclidean time direction over a closed loop
 	\begin{equation}
-		P(\vec{x}\,) = \text{Tr}\,\prod_{t_\text{E}=1}^{L_t}U_4(\vec{x},t_\text{E}).
+		P_{\vec{x}} = \text{Tr}\,\prod_{t_\text{E}=1}^{L_t}U_{(\vec{x},t_\text{E}),4}.
 	\end{equation}
 
 \subsection{Static quark potential}
 One important quantity involving Polyakov loops is their correlation. The correlation function of Polyakov loops is related to the static quark potential $V(r)$ as
 \begin{equation}
-	\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle \propto e^{-L_t a V(r)} \left(1 +\mathcal{O}\left( e^{-L_t a \Delta E}\right) \right),
+	\left\langle P_{\vec{x}} P_{\vec{y}}^{\dagger} \right\rangle \propto e^{-L_t a V(r)} \left(1 +\mathcal{O}\left( e^{-L_t a \Delta E}\right) \right),
 \end{equation}
 where $r = |\vec{x} - \vec{y}\,|$. Numerically speaking, we compute
 
 \begin{equation}
-	\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle = \frac{1}{3V}\sum_{x,\mu = 1,2,3}  P(\vec{x}\,) P\left(\vec{x}+r\hat{\mu}\right)^{\dagger}.
+	\langle P_{\vec{x}} P_{\vec{y}}^{\dagger} \rangle = \frac{1}{3V}\sum_{x,\mu = 1,2,3}  P_{\vec{x}} P_{\vec{x}+r\hat{\mu}}^{\dagger}.
 \end{equation}
 
  Up to a constant the static quark potential is
 \begin{equation}
-	aV(r) = - \log(\langle P(\vec{x}\,) P(\vec{y}\,)^{\dagger} \rangle)/L_t.
+	aV(r) = - \log \left\langle P_{\vec{x}} P_{\vec{y}}^{\dagger} \right\rangle/L_t.
 \end{equation}
 
 We use the Cornell potential to parametrize $V(r)$

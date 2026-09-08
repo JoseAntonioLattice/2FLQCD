@@ -818,6 +818,7 @@ contains
     real(dp), dimension(4,Lt,Lx,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8
     real(dp), parameter :: tol = 1.0E-12
     character(:), allocatable :: fl
+    integer :: ic
     
     call random_number(r1)
     call random_number(r2)
@@ -829,17 +830,18 @@ contains
     call random_number(r8)
     call U%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
 
-
+    ic = 100
     fl = "data/configurations/Lt="//int2str(Lt)// &
          "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
-         "/beta="//real2str(betai,1,4)//"/U_1.bin"
+         "/beta="//real2str(betai,1,4)//"/U_"//int2str(ic) //".bin"
     print*, fl
     call read_configuration(U,fl)
     
-     
-    call wilson_flow_rk3(U,betai)
-
-    
+    fl = "data/WF_Lt="//int2str(Lt)// &
+         "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
+         "_beta="//real2str(betai,1,4)//"_"//int2str(ic)//".dat"
+    call wilson_flow_rk3(U,fl)
+        
   end subroutine test_wilson_flow
 
   

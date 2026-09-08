@@ -98,7 +98,7 @@ contains
    
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: beta(:)
-    integer :: ib, inunit
+    integer :: ib, inunit, ic
     character(:), allocatable :: filename
     
     open(newunit=inunit, file= "data/plaquette_value_"//trim(algorithm)//".dat")
@@ -115,11 +115,18 @@ contains
 
     if(GFON) then
        !call thermalization(U,beta(1))
-       filename = "data/configurations/Lt="//int2str(Lt)// &
-            "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
-            "/beta="//real2str(beta(1),1,4)//"/U_1.bin"
-       call read_configuration(U,filename)
-       call wilson_flow_rk3(U)
+       do ib = 1, size(beta)
+          do ic = 1, N_measurements
+             filename = "data/configurations/Lt="//int2str(Lt)// &
+                  "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
+                  "/beta="//real2str(beta(1),1,4)//"/U_"//int2str(ic)//".bin"
+             call read_configuration(U,filename)
+             filename = "data/WF_Lt="//int2str(Lt)// &
+                  "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
+                  "_beta="//real2str(beta(1),1,4)//"_"//int2str(ic)//".dat"
+             call wilson_flow_rk3(U,filename)
+          end do
+       end do
        return
     end if
     

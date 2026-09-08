@@ -48,15 +48,16 @@ contains
   end subroutine wilson_flow_euler
 
   
-  subroutine wilson_flow_rk3(U)
+  subroutine wilson_flow_rk3(U,filename)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+    character(*), intent(in) :: filename
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it
     real(dp) :: S, S0
     
 
-    open(unit = 666, file = "data/WF.dat")
+    open(unit = 666, file = filename)
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
     

@@ -8,6 +8,8 @@ program test
   use CG
   use dynamics
   use observables
+  use number2string
+  use save
   implicit none
   integer, parameter :: dp = 8
 
@@ -36,11 +38,12 @@ program test
   call test_TA
   call test_su3alg
   
-  call test_exp_su3alg
+  call test_exp_su3alg_det
 
-  call  test_gamma5hermiticity_of_Dirac_matrix()
+  call test_gamma5hermiticity_of_Dirac_matrix()
   call test_conjugate_gradient
-  !call test_clover()
+  call test_exponential_su3alg
+  call test_wilson_flow
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -521,7 +524,7 @@ contains
   end subroutine test_parameters
   
 
-  subroutine test_exp_su3alg()
+  subroutine test_exp_su3alg_det()
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
     real(dp), dimension(4,Lx,Lt,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8
     real(dp), parameter :: tol = 1.0e-12_dp
@@ -566,7 +569,7 @@ contains
 
     
     
-  end subroutine test_exp_su3alg
+  end subroutine test_exp_su3alg_det
 
 
   subroutine test_gamma5hermiticity_of_Dirac_matrix()
@@ -765,5 +768,79 @@ contains
     end do
     close(69)
   end subroutine test_clover
+
+  subroutine test_exponential_su3alg()
+    type(su3alg) :: A
+    type(su3) :: exp1, exp2
+    real(dp) :: r1,r2,r3,r4,r5,r6,r7,r8
+    real(dp), parameter :: tol = 1.0E-12
+    
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+    
+    call A%init_su3alg(r1,r2,r3,r4,r5,r6,r7,r8)
+
+    call create_gellmann_matrices()
+    exp1 = exp_su3alg(A)
+    exp2%mat = exp_taylor(A%mat)
+    
+    call assert_equal_complex_matrix("exp(A) of su(3)",exp1%mat,exp2%mat,tol)
+    
+  end subroutine test_exponential_su3alg
+
+  function exp_taylor(U)
+    complex(dp), dimension(3,3), intent(in) :: U
+    complex(dp), dimension(3,3) :: sum, prod, exp_taylor
+    integer :: i
+    
+    EXP_TAYLOR = (0.0_dp,0.0_dp)
+    EXP_TAYLOR(1,1) = (1.0_dp,0.0_dp)
+    EXP_TAYLOR(2,2) = (1.0_dp,0.0_dp)
+    EXP_TAYLOR(3,3) = (1.0_dp,0.0_dp)
+    prod = EXP_TAYLOR
+    
+    do i = 1, 50
+       prod = matmul(prod,U)/real(i,dp)
+       EXP_TAYLOR = EXP_TAYLOR + prod
+    end do
+    
+  end function exp_taylor
+
+
+  subroutine test_wilson_flow()
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    real(dp), dimension(4,Lt,Lx,Ly,Lz) :: r1,r2,r3,r4,r5,r6,r7,r8
+    real(dp), parameter :: tol = 1.0E-12
+    character(:), allocatable :: fl
+    
+    call random_number(r1)
+    call random_number(r2)
+    call random_number(r3)
+    call random_number(r4)
+    call random_number(r5)
+    call random_number(r6)
+    call random_number(r7)
+    call random_number(r8)
+    call U%init_su3(r1,r2,r3,r4,r5,r6,r7,r8)
+
+
+    fl = "data/configurations/Lt="//int2str(Lt)// &
+         "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
+         "/beta="//real2str(betai,1,4)//"/U_1.bin"
+    print*, fl
+    call read_configuration(U,fl)
+    
+     
+    call wilson_flow_rk3(U,betai)
+
+    
+  end subroutine test_wilson_flow
+
   
 end program test

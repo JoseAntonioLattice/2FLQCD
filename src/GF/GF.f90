@@ -1,5 +1,5 @@
 module GF
-  use parameters, only : Lt, Lx, Ly, Lz, epsilon, N
+  use parameters, only : L, Lt, Lx, Ly, Lz, epsilon, N
   use su3facts
   use observables
   use gauge
@@ -41,26 +41,28 @@ contains
        U = V
        S = energy_density(U)
               
-       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') i, i*epsilon, S, energy_density_clover(U)
+       write(666, '(I6,*(2X,F14.6))') i, i*epsilon, S, energy_density_clover(U)
        flush(666)
     end do
     close(666)
   end subroutine wilson_flow_euler
 
   
-  subroutine wilson_flow_rk3(U)
+  subroutine wilson_flow_rk3(U,beta)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
+    real(dp), intent(in) :: beta
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it
-    real(dp) :: S
+    real(dp) :: S, S0
     
 
     open(unit = 666, file = "data/WF.dat")
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
-    S = energy_density(U)
-    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X,F18.10)') &
-         0, 0.0_dp, S, energy_density_clover(U), topological_charge_clover(U)
+    S0 = energy_density(U)
+    
+    write(666, '(I6,*(2X,F14.6))') &
+         0, 0.0_dp, energy_density(U), energy_density_clover(U), topological_charge_clover(U)
 
     wilson_time: do it = 1, N
        do t = 1, Lt
@@ -106,9 +108,11 @@ contains
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
-       write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10,2X,F18.10)') &
-            it, it*epsilon, S, energy_density_clover(U), topological_charge_clover(U)
+       write(666, '(I6,*(2X,F14.6))') &
+            it, it*epsilon, energy_density(U), energy_density_clover(U), topological_charge_clover(U), &
+            2*sum(real(tr(Z0*Z0)))/(product(L)*epsilon**2), (S-S0)/(epsilon)
        flush(666)
+       S0 = S
     end do wilson_time
     close(666)
   end subroutine wilson_flow_rk3

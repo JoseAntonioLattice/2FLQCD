@@ -1,11 +1,11 @@
 module save
-  use iso_fortran_env, only : dp => real64, i4 => int32
+  
   use number2string
   use check_files_directories 
   use parameters, only : L, Lt, Lx, Ly, Lz, m0
   use su3facts
   implicit none
-  
+  integer, parameter, private :: dp = 8
 contains
 
   subroutine save_configuration(U,beta)

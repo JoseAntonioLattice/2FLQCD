@@ -119,7 +119,7 @@ contains
             "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
             "/beta="//real2str(beta(1),1,4)//"/U_1.bin"
        call read_configuration(U,filename)
-       call wilson_flow_rk3(U,beta(1))
+       call wilson_flow_rk3(U)
        return
     end if
     

@@ -48,9 +48,8 @@ contains
   end subroutine wilson_flow_euler
 
   
-  subroutine wilson_flow_rk3(U,beta)
+  subroutine wilson_flow_rk3(U)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
-    real(dp), intent(in) :: beta
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it

@@ -837,7 +837,7 @@ contains
     print*, fl
     call read_configuration(U,fl)
     
-    fl = "data/WF_Lt="//int2str(Lt)// &
+    fl = "data/test_WF_Lt="//int2str(Lt)// &
          "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
          "_beta="//real2str(betai,1,4)//"_"//int2str(ic)//".dat"
     call wilson_flow_rk3(U,fl)

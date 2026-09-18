@@ -11,6 +11,7 @@ OBJS := $(patsubst %.f90, $(OBJDIR)/%.o, $(notdir $(SRCS)))
 
 EXE := build/2FLQCD
 EXETEST := build/test
+EXEWF := build/WF_anal
 
 SRC_DIRS := $(sort $(dir $(SRCS)))
 VPATH := $(SRC_DIRS) 
@@ -33,6 +34,8 @@ run:
 
 test: $(EXETEST)
 
+WF : $(EXEWF)
+
 
 $(EXETEST): $(OBJS) build/obj/test.o
 	$(FC) $^ -o $@
@@ -40,9 +43,18 @@ $(EXETEST): $(OBJS) build/obj/test.o
 build/obj/test.o: tests/test.f90
 	$(FC) $(FLAGS) -c $< -o $@
 
+build/obj/WF_analysis.o: src/WF_analysis.f90
+	$(FC) $(FLAGS) -c $< -o $@
+
+$(EXEWF): build/obj/num2str.o build/obj/statistics.o build/obj/WF_analysis.o
+	$(FC) $^ -o $@
 
 test_run:
 	build/test
 
+
 clean:
 	rm -r build/obj/* build/mod/*
+
+run_WF:
+	$(EXEWF)

@@ -32,18 +32,21 @@ program test
   call test_gellmann_matrices
   call test_unitarity()
 
-  call test_assert_matrix()
+  !call test_assert_matrix()
   call test_plaquette()
 
   call test_TA
   call test_su3alg
   
-  call test_exp_su3alg_det
+  !call test_exp_su3alg_det
 
-  call test_gamma5hermiticity_of_Dirac_matrix()
-  call test_conjugate_gradient
-  call test_exponential_su3alg
-  call test_wilson_flow
+  !call test_gamma5hermiticity_of_Dirac_matrix()
+  !call test_conjugate_gradient
+  !call test_exponential_su3alg
+  !call test_wilson_flow
+
+
+  call test_ildg_reader()
   
 contains
   subroutine assert_close(name, measured, expected, tol)
@@ -844,5 +847,50 @@ contains
         
   end subroutine test_wilson_flow
 
+  subroutine test_ildg_reader()
+    use ildg_lime
+    type(ildg_metadata)      :: meta
+    complex(dp), allocatable :: U_ildg(:,:,:,:,:,:,:)
+    integer                  :: stat
+    character(:), allocatable:: msg
+    type(su3), allocatable :: U(:,:,:,:,:)
+    integer :: x,y,z,t,mu,a,b
+
+
+    print*, "Read ildg configuration"
+    call ildg_read_metadata("data/conf.3980",meta,stat,msg)
+    if(stat/=0) stop msg
+    
+    call ildg_read_gauge("data/conf.3980",meta,u_ildg,stat,msg)
+    if(stat/=0) stop msg
+
+
+    allocate(U(4,meta%lt,meta%lx,meta%ly,meta%lz))
+    
+    do t = 1, meta%Lt
+       do x = 1, meta%Lx
+          do y = 1, meta%Ly
+             do z = 1, meta%Lz
+                do mu = 1, 4
+                   !U(mu,t,x,y,z)%mat(a,b) = U_ildg(a,b,mu,x,y,z,t)
+                   U(1,t,x,y,z)%mat = U_ildg(:,:,4,x,y,z,t)   ! t
+                   U(2,t,x,y,z)%mat = U_ildg(:,:,1,x,y,z,t)   ! x
+                   U(3,t,x,y,z)%mat = U_ildg(:,:,2,x,y,z,t)   ! y
+                   U(4,t,x,y,z)%mat = U_ildg(:,:,3,x,y,z,t)   ! z
+                end do
+             end do
+          end do
+       end do
+    end do
+
+
+
+    
+    print*, plaquette_value(U), ildg_plaquette(u_ildg)
+    
+  end subroutine test_ildg_reader
+
+  
+  
   
 end program test

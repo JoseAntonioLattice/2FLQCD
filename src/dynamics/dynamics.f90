@@ -116,16 +116,25 @@ contains
     if(GFON) then
        !call thermalization(U,beta(1))
        do ib = 1, size(beta)
+          
+          
           do ic = 1, N_measurements
-             filename = "data/configurations/Lt="//int2str(Lt)// &
-                  "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
-                  "/beta="//real2str(beta(1),1,4)//"/U_"//int2str(ic)//".bin"
-             call read_configuration(U,filename)
-             filename = "data/WF_Lt="//int2str(Lt)// &
+             
+
+             if(readconf) then
+                filename = "data/configurations/Lt="//int2str(Lt)// &
+                     "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
+                     "/beta="//real2str(beta(1),1,4)//"/U_"//int2str(ic)//".bin"
+                call read_configuration(U,filename)
+             end if
+             if(readildg) call read_ildg_configuration(U,"data/conf.3980")
+             
+             filename = "data/WF_ildg_Lt="//int2str(Lt)// &
                   "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
                   "_beta="//real2str(beta(1),1,4)//"_"//int2str(ic)//".dat"
              call wilson_flow_rk3(U,filename)
           end do
+          
        end do
        return
     end if
@@ -139,5 +148,48 @@ contains
     end do
 
   end subroutine simulation
-     
+
+  
+  subroutine read_ildg_configuration(U,filename)
+    use ildg_lime
+    type(ildg_metadata)      :: meta
+    complex(dp), allocatable :: U_ildg(:,:,:,:,:,:,:)
+    integer                  :: stat
+    character(:), allocatable:: msg
+    type(su3), intent(out) :: U(:,:,:,:,:)
+    character(*), intent(in) :: filename
+    integer :: x,y,z,t,mu
+
+
+    print*, "Read ildg configuration"
+    call ildg_read_metadata(filename,meta,stat,msg)
+    if(stat/=0) stop msg
+    
+    call ildg_read_gauge(filename,meta,u_ildg,stat,msg)
+    if(stat/=0) stop msg
+
+    !allocate(U(4,meta%lt,meta%lx,meta%ly,meta%lz))
+    
+    do t = 1, meta%Lt
+       do x = 1, meta%Lx
+          do y = 1, meta%Ly
+             do z = 1, meta%Lz
+                do mu = 1, 4
+                   !U(mu,t,x,y,z)%mat(a,b) = U_ildg(a,b,mu,x,y,z,t)
+                   U(1,t,x,y,z)%mat = U_ildg(:,:,4,x,y,z,t)   ! t
+                   U(2,t,x,y,z)%mat = U_ildg(:,:,1,x,y,z,t)   ! x
+                   U(3,t,x,y,z)%mat = U_ildg(:,:,2,x,y,z,t)   ! y
+                   U(4,t,x,y,z)%mat = U_ildg(:,:,3,x,y,z,t)   ! z
+                end do
+             end do
+          end do
+       end do
+    end do
+
+    !print*, plaquette_value(U), ildg_plaquette(u_ildg)
+    
+  end subroutine read_ildg_configuration
+
+
+  
 end module dynamics

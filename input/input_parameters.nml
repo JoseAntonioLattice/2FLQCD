@@ -1,10 +1,10 @@
 &lattice
-L = 40,20,20,20
+L = 64,32,32,32
 N = 600
 epsilon = 0.02
-N_thermalization = 100
-N_measurements = 100
-N_skip = 2
+N_thermalization = 1
+N_measurements = 1
+N_skip = 1
 betai = 0.1
 betaf = 10.0
 nbeta = 1

@@ -30,7 +30,7 @@ $(OBJDIR)/%.o: %.f90
 
 
 run:
-	echo "input/input_parameters.nml" | build/2FLQCD
+	{ echo "input/input_parameters.nml"; echo "data/qcdsf.721.00101.lime"; } | build/2FLQCD
 
 test: $(EXETEST)
 
@@ -50,7 +50,7 @@ $(EXEWF): build/obj/num2str.o build/obj/statistics.o build/obj/WF_analysis.o
 	$(FC) $^ -o $@
 
 test_run:
-	build/test
+	{ echo "input/input_parameters.nml"; echo "data/qcdsf.721.00101.lime"; } | build/test
 
 
 clean:

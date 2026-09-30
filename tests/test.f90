@@ -855,15 +855,16 @@ contains
     character(:), allocatable:: msg
     type(su3), allocatable :: U(:,:,:,:,:)
     integer :: x,y,z,t,mu,a,b
+    character(100) :: filename
 
-
-    print*, "Read ildg configuration"
-    call ildg_read_metadata("data/conf.3980",meta,stat,msg)
+    print*, "Enter ildg configuration"
+    read(*,"(a)") filename
+    print*, "User wrote: ", trim(filename)
+    call ildg_read_metadata(trim(filename),meta,stat,msg)
     if(stat/=0) stop msg
-    
-    call ildg_read_gauge("data/conf.3980",meta,u_ildg,stat,msg)
+    !print*, meta
+    call ildg_read_gauge(filename,meta,u_ildg,stat,msg)
     if(stat/=0) stop msg
-
 
     allocate(U(4,meta%lt,meta%lx,meta%ly,meta%lz))
     
@@ -882,9 +883,6 @@ contains
           end do
        end do
     end do
-
-
-
     
     print*, plaquette_value(U), ildg_plaquette(u_ildg)
     

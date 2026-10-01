@@ -182,6 +182,16 @@ contains
     q = -1/(128*pi**2)*sum(unormalized_topological_charge_density_clover(U))
     
   end function topological_charge_clover
+
+  function slab_top_char_unormalized(top,it)
+    real(dp), intent(in) :: top(:,:,:,:)
+    integer, intent(in) :: it
+    real(dp) :: slab_top_char_unormalized
+
+    slab_top_char_unormalized = sum(top(1:it,:,:,:))**2
+    
+  end function slab_top_char_unormalized
+
   
 end module observables
 

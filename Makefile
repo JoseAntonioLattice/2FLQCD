@@ -50,7 +50,7 @@ $(EXEWF): build/obj/num2str.o build/obj/statistics.o build/obj/WF_analysis.o
 	$(FC) $^ -o $@
 
 test_run:
-	{ echo "input/input_parameters.nml"; echo "data/qcdsf.721.00101.lime"; } | build/test
+	{ echo "input/input_parameters.nml"; echo "data/configuration/Lt=8/Lx=8/Ly=8/Lz=8/beta=0.1000/U_1.bin"; } | build/test
 
 
 clean:

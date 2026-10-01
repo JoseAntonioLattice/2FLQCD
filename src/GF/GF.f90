@@ -4,7 +4,7 @@ module GF
   use observables
   use gauge
   implicit none
-  integer, parameter, private :: dp = 8
+  integer, parameter, private :: dp = 8, pi = acos(-1.0_dp)
 contains
 
   subroutine wilson_flow_euler(U)
@@ -54,12 +54,20 @@ contains
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it
-    real(dp) :: S, S0
+    real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), slab(Lt)
     
 
     open(unit = 666, file = filename)
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
+
+    q_clover = unormalized_topological_charge_density_clover(U)
+    open(unit = 777, file = "slab.dat")
+    do t = 1, Lt
+       slab(t) = slab_top_char_unormalized(q_clover,t)/(128*pi**2)**2
+       write(777,*) t-1, slab(t)
+    end do
+    write(777,"(3/) ")
     
     write(666, '(I6,*(2X,F14.6))') &
          0, 0.0_dp, energy_density(U), energy_density_clover(U), topological_charge_clover(U)
@@ -108,9 +116,18 @@ contains
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
+       q_clover = unormalized_topological_charge_density_clover(U)
+
        write(666, '(I6,*(2X,F14.6))') &
             it, it*epsilon, energy_density(U), energy_density_clover(U), topological_charge_clover(U), &
             2*sum(real(tr(Z0*Z0)))/(product(L)*epsilon**2), (S-S0)/(epsilon)
+
+       do t = 1, Lt
+          slab(t) = slab_top_char_unormalized(q_clover,t)/(128*pi**2)**2
+          write(777,*) t-1, slab(t)
+          flush(777)
+       end do
+       write(777,"(3/) ")
        flush(666)
        S0 = S
     end do wilson_time

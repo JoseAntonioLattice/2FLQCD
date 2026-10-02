@@ -100,20 +100,22 @@ contains
     real(dp) :: beta(:)
     integer :: ib, inunit, ic
     character(:), allocatable :: filename
-    character(100) :: conf_file
+    character(512) :: conf_file
     
     open(newunit=inunit, file= "data/plaquette_value_"//trim(algorithm)//".dat")
     write(inunit,nml = lattice)
 
-    select case(trim(start))
-    case("hot")
-       call hot_start(U)
-    case("cold")
-       call cold_start(U)
-    case default 
-       stop "Not a valid start. Choose 'hot' or 'cold'."
-    end select
-
+    if( (.not.readconf) .and. (.not.readildg) ) then
+       select case(trim(start))
+       case("hot")
+          call hot_start(U)
+       case("cold")
+          call cold_start(U)
+       case default 
+          stop "Not a valid start. Choose 'hot' or 'cold'."
+       end select
+    end if
+       
     if(GFON) then
        !call thermalization(U,beta(1))
        do ib = 1, size(beta)
@@ -195,7 +197,8 @@ contains
        print*,"t = ", t
     end do
 
-    !print*, plaquette_value(U), ildg_plaquette(u_ildg)
+    print*, "Plaquette value"
+    print*, plaquette_value(U), ildg_plaquette(u_ildg)
     
   end subroutine read_ildg_configuration
 

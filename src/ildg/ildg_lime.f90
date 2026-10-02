@@ -142,16 +142,32 @@ contains
       integer(int64),     allocatable :: o_tmp(:), l_tmp(:)
       integer, parameter             :: MAXREC = 256
 
+      logical :: fexist        
+      character(len=32) :: nbuf
+      
       stat = 0
       msg = ''
       ntypes = 0
       allocate (t_tmp(MAXREC), o_tmp(MAXREC), l_tmp(MAXREC))
 
-      inquire (file=fname, size=fsize)
-      if (fsize <= 0) then
-         stat = 1; msg = 'archivo vacio o inexistente: '//trim(fname); return
-      end if
+      !inquire (file=fname, size=fsize)
+      !if (fsize <= 0) then
+      !   stat = 1; msg = 'archivo vacio o inexistente: '//trim(fname); return
+      !end if
 
+
+
+      inquire (file=fname, exist=fexist, size=fsize)
+      if (.not. fexist) then
+         write(nbuf,'(i0)') len_trim(fname)
+         stat = 1
+         msg = 'no existe el archivo ['//trim(fname)//'] (longitud del nombre: '//trim(nbuf)//')'
+         return
+      end if
+      if (fsize <= 0) then
+         stat = 1; msg = 'el archivo existe pero tiene tamaño cero: ['//trim(fname)//']'; return
+      end if
+      
       open (newunit=unit, file=fname, access='stream', form='unformatted', &
             status='old', action='read', iostat=ios)
       if (ios /= 0) then

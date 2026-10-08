@@ -4,7 +4,8 @@ module GF
   use observables
   use gauge
   implicit none
-  integer, parameter, private :: dp = 8, pi = acos(-1.0_dp)
+  integer,  parameter, private :: dp = 8
+  real(dp), parameter, private :: pi = acos(-1.0_dp)
 contains
 
   subroutine wilson_flow_euler(U)
@@ -19,29 +20,23 @@ contains
     open(unit = 666, file = "data/WF.dat")
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S = energy_density(U)
-    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') 0, 0.0_dp, S, energy_density_clover(U)
+    write(666, '(I6,2X,F14.6,2X,F18.10,2X,F18.10)') 0, 0.0_dp, S, energy_density_clover_traceless(U)
 
     do i = 1, n
-       do x1 = 1, Lt
-          do x2 = 1, Lx
-             do x3 = 1, Ly
-                do x4 = 1, Lz
-                   x = [x1,x2,x3,x4]
-                   do mu = 1, 4
-                      B = Zeta(U,x,mu)
-                      B = B*epsilon
-                      expB = exp(B)
-                      V(mu,x1,x2,x3,x4) = expB * U(mu,x1,x2,x3,x4)
-                   end do
-                end do
-             end do
+       do x1 = 1, Lt; do x2 = 1, Lx; do x3 = 1, Ly; do x4 = 1, Lz
+          x = [x1,x2,x3,x4]
+          do mu = 1, 4
+             B = Zeta(U,x,mu)
+             B = B*epsilon
+             expB = exp(B)
+             V(mu,x1,x2,x3,x4) = expB * U(mu,x1,x2,x3,x4)
           end do
-       end do
-             
+       end do; end do; end do; end do
+
        U = V
        S = energy_density(U)
               
-       write(666, '(I6,*(2X,F14.6))') i, i*epsilon, S, energy_density_clover(U)
+       write(666, '(I6,*(2X,F14.6))') i, i*epsilon, S, energy_density_clover_traceless(U)
        flush(666)
     end do
     close(666)
@@ -61,16 +56,16 @@ contains
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
 
-    q_clover = unormalized_topological_charge_density_clover(U)
+    q_clover = topological_charge_density_clover_traceless(U)
     open(unit = 777, file = "slab.dat")
     do t = 1, Lt
-       slab(t) = slab_top_char_unormalized(q_clover,t)/(128*pi**2)**2
-       write(777,*) t-1, slab(t)
+       slab(t) = slab_top_char(q_clover,t)
+       write(777,*) t, slab(t)
     end do
     write(777,"(3/) ")
     
     write(666, '(I6,*(2X,F14.6))') &
-         0, 0.0_dp, energy_density(U), energy_density_clover(U), topological_charge_clover(U)
+         0, 0.0_dp, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U)
 
     wilson_time: do it = 1, N
        do t = 1, Lt
@@ -116,15 +111,15 @@ contains
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
-       q_clover = unormalized_topological_charge_density_clover(U)
+       q_clover = topological_charge_density_clover_traceless(U)
 
        write(666, '(I6,*(2X,F14.6))') &
-            it, it*epsilon, energy_density(U), energy_density_clover(U), topological_charge_clover(U), &
+            it, it*epsilon, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U), &
             2*sum(real(tr(Z0*Z0)))/(product(L)*epsilon**2), (S-S0)/(epsilon)
 
        do t = 1, Lt
-          slab(t) = slab_top_char_unormalized(q_clover,t)/(128*pi**2)**2
-          write(777,*) t-1, slab(t)
+          slab(t) = slab_top_char(q_clover,t)
+          write(777,*) t, slab(t)
           flush(777)
        end do
        write(777,"(3/) ")

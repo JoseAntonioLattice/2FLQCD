@@ -129,6 +129,18 @@ contains
     clover%mat = tmp%mat
     
   end function clover
+  
+  function clover_traceless(U,x,mu,nu)
+    type(su3), dimension(:,:,:,:,:), intent(in) :: U
+    integer, intent(in) :: x(4), mu, nu
+    type(matrix3x3) :: clover_traceless, tmp
+
+    tmp = clover(U,x,mu,nu)
+
+    tmp = tmp - dagger(tmp)
+    clover_traceless%mat = tmp%mat - 1/3.0_dp * delta_3x3 * tr(tmp)  
+    
+  end function clover_traceless
 
   function clover2(U,x,mu,nu)
     type(su3), dimension(:,:,:,:,:), intent(in) :: U
@@ -142,5 +154,16 @@ contains
     clover2%mat = tmp%mat
     
   end function clover2
+
+
+  function field_strength_clover_traceless(U,x,mu,nu) result(F)
+    type(su3), dimension(:,:,:,:,:), intent(in) :: U
+    integer, intent(in) :: x(4), mu, nu
+    type(matrix3x3) :: F
     
+    F = 1/8.0_dp * clover_traceless(U,x,mu,nu)
+    
+  end function field_strength_clover_traceless
+
+  
 end module gauge

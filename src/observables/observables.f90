@@ -90,32 +90,25 @@ contains
   ! G_{mu,nu} = (Q_{mu,nu} - dagger(Q_{mu,nu}))/8
   ! Q_{mu,nu}: clover
   ! E = \sum_{mu,nu} E_{mu,nu} = 2 \sum_{mu<nu} E_{mu,nu} = -1/64 \sum_{mu<nu} tr((Q_{mu,nu} - dagger(Q_{mu,nu}))^2)
-  function energy_density_clover(U) result(E)
+  function energy_density_clover_traceless(U) result(E)
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: E
     integer :: t,x,y,z, mu, nu
-    type(matrix3x3) :: Q, tmp
+    type(matrix3x3) :: F, tmp
     
     E = 0.0_dp
-    do t = 1, Lt
-       do x = 1, Lx
-          do y = 1, Ly
-             do z = 1, Lz
-                do mu = 1, 3
-                   do nu = mu+1, 4
-                      Q = clover(U,[t,x,y,z],mu,nu)
-                      tmp = Q - dagger(Q)
-                      !tmp%mat = tmp%mat -tr(tmp)/3.0_dp*delta_3x3
-                      E = E + real(tr(tmp*tmp))
-                   end do
-                end do
-             end do
-          end do
-       end do
-    end do
+    do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz
+       do mu = 1, 3; do nu = mu+1, 4
+          F = field_strength_clover_traceless(U,[t,x,y,z],mu,nu)
+          !tmp = Q - dagger(Q)
+          !tmp%mat = tmp%mat -tr(tmp)/3.0_dp*delta_3x3
+          E = E + real(tr(F*F))
+       end do; end do
+    end do; end do; end do; end do
+          
 
-    E = -E/(64.0_dp*product(L))
-  end function energy_density_clover
+    E = -E/product(L)
+  end function energy_density_clover_traceless
 
   
   function energy_density_clover2(U) result(E)
@@ -144,53 +137,48 @@ contains
     E = -E/(64.0_dp*product(L))
   end function energy_density_clover2
 
-  function unormalized_topological_charge_density_clover(U) result(q)
+  function topological_charge_density_clover_traceless(U) result(q)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
-    integer :: t, x, y, z
-    type(matrix3x3) :: Q34, Q24, Q23
+    integer :: t, x, y, z, s(4)
+    type(matrix3x3) :: Q12, Q13, Q14, Q34, Q24, Q23
     real(dp) :: q(Lt,Lx,Ly,Lz)
+
     
-    do t = 1, Lt
-       do x = 1, Lx
-          do y = 1, Ly
-             do z = 1, Lz
-                Q34 = clover(U,[t,x,y,z],3,4)
-                Q34 = Q34 - dagger(Q34)
+    do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz 
 
-                Q24 = clover(U,[t,x,y,z],2,4)
-                Q24 = Q24 - dagger(Q24)
+       s = [t,x,y,z]
 
-                Q23 = clover(U,[t,x,y,z],2,3)
-                Q23 = Q23 - dagger(Q23)
-        
-                q(t,x,y,z) = real(tr(clover(U,[t,x,y,z],1,2)*Q34) &
-                                - tr(clover(U,[t,x,y,z],1,3)*Q24) &
-                                + tr(clover(U,[t,x,y,z],1,4)*Q23))
-             end do
-          end do
-       end do
-    end do
-        
-  end function unormalized_topological_charge_density_clover
-
-  function topological_charge_clover(U) result(q)
+       Q12 = field_strength_clover_traceless(U,s,1,2)
+       Q34 = field_strength_clover_traceless(U,s,3,4)
+       
+       Q13 = field_strength_clover_traceless(U,s,1,3)
+       Q24 = field_strength_clover_traceless(U,s,2,4)
+       
+       Q14 = field_strength_clover_traceless(U,s,1,4)
+       Q23 = field_strength_clover_traceless(U,s,2,3)
+                
+       q(t,x,y,z) = -real(tr(Q12*Q34) - tr(Q13*Q24) + tr(Q14*Q23))/(4*pi**2)
+       
+    end do; end do; end do; end do
+          
+  end function topological_charge_density_clover_traceless
+  
+  function topological_charge_clover_traceless(U) result(Q)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
-    integer :: t, x, y, z
-    type(matrix3x3) :: Q34, Q24, Q23
-    real(dp) :: q
-
-    q = -1/(128*pi**2)*sum(unormalized_topological_charge_density_clover(U))
+    real(dp) :: Q
     
-  end function topological_charge_clover
+    Q = sum(topological_charge_density_clover_traceless(U))
+    
+  end function topological_charge_clover_traceless
 
-  function slab_top_char_unormalized(top,it)
+  function slab_top_char(top,it)
     real(dp), intent(in) :: top(:,:,:,:)
     integer, intent(in) :: it
-    real(dp) :: slab_top_char_unormalized
+    real(dp) :: slab_top_char
 
-    slab_top_char_unormalized = sum(top(1:it,:,:,:))**2
+    slab_top_char = sum(top(1:it,:,:,:))**2
     
-  end function slab_top_char_unormalized
+  end function slab_top_char
 
   
 end module observables

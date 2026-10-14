@@ -13,7 +13,7 @@ module parameters
   real(dp):: m0
   character(25):: algorithm, start, mod
   logical :: GFON, saveconf, readconf, readildg
-  
+  integer :: indx
   namelist /lattice/ L, N, epsilon, N_measurements, N_thermalization, N_skip, &
        betai, betaf, nbeta,start, algorithm, GFON,saveconf, readconf,readildg, m0, mod
 

@@ -99,7 +99,7 @@ contains
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: beta(:)
     integer :: ib, inunit, ic
-    character(:), allocatable :: filename
+    character(:), allocatable :: filename, f2
     character(512) :: conf_file
     
     open(newunit=inunit, file= "data/plaquette_value_"//trim(algorithm)//".dat")
@@ -121,29 +121,34 @@ contains
        do ib = 1, size(beta)
           
           
-          do ic = 1, N_measurements
+          write(*,*) "# of configuration"
+          read(*,"(a)") indx
+          
+          if(readconf) then
+             filename = "data/configurations/Lt="//int2str(Lt)// &
+                  "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
+                  "/beta="//real2str(beta(1),1,4)//"/U_"//int2str(indx)//".bin"
+             call read_configuration(U,filename)
              
-
-             if(readconf) then
-                filename = "data/configurations/Lt="//int2str(Lt)// &
-                     "/Lx="//int2str(Lx)//"/Ly="//int2str(Ly)//"/Lz="//int2str(Lz)// &
-                     "/beta="//real2str(beta(1),1,4)//"/U_"//int2str(ic)//".bin"
-                call read_configuration(U,filename)
-                
-             end if
-             
-             if(readildg) then
-                write(*,*) "configuration file: "
-                read(*,"(a)") conf_file
-                write(*,*) "User wrote: ", trim(conf_file)
-                call read_ildg_configuration(U,trim(conf_file))
-                print*, "Finish reading"
-             end if
-             filename = "data/WF_ildg_Lt="//int2str(Lt)// &
-                  "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
-                  "_beta="//real2str(beta(1),1,4)//"_"//int2str(ic)//".dat"
-             call wilson_flow_rk3(U,filename)
-          end do
+          end if
+          
+          if(readildg) then
+             write(*,*) "configuration file: "
+             read(*,"(a)") conf_file
+             write(*,*) "User wrote: ", trim(conf_file)
+             call read_ildg_configuration(U,trim(conf_file))
+             print*, "Finish reading"
+          end if
+          filename = "data/WF_ildg_Lt="//int2str(Lt)// &
+               "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
+               "_beta="//real2str(beta(1),1,4)//"_"//int2str(indx)//".dat"
+          
+          f2 = "data/slab_ildg_Lt="//int2str(Lt)// &
+               "_Lx="//int2str(Lx)//"_Ly="//int2str(Ly)//"_Lz="//int2str(Lz)// &
+               "_beta="//real2str(beta(1),1,4)//"_"//int2str(indx)//".dat"
+          
+          call wilson_flow_rk3(U,[filename,f2])
+          
           
        end do
        return

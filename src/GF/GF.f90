@@ -45,88 +45,70 @@ contains
   
   subroutine wilson_flow_rk3(U,filename)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
-    character(*), intent(in) :: filename
+    character(*), intent(in) :: filename(2)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
-    integer :: x,y,t,z, mu, it
+    integer :: x,y,t,z, mu, it, f1, f2
     real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), slab(Lt)
     
 
-    open(unit = 666, file = filename)
+    open(unit = f1, file = filename(1))
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
 
     q_clover = topological_charge_density_clover_traceless(U)
-    open(unit = 777, file = "slab.dat")
+    open(unit = f2, file = filename(2))
     do t = 1, Lt
        slab(t) = slab_top_char(q_clover,t)
-       write(777,*) t, slab(t)
+       write(f2,*) t, slab(t), slab_profile(q_clover,t)
     end do
-    write(777,"(3/) ")
+    write(f2,"(3/) ")
     
-    write(666, '(I6,*(2X,F14.6))') &
-         0, 0.0_dp, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U)
+    write(f1, '(*(ES16.8,2x))') &
+         0.0_dp, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U)
 
     wilson_time: do it = 1, N
-       do t = 1, Lt
-          do x = 1, Lx
-             do y = 1, Ly
-                do z = 1, Lz
-                   do mu = 1, 4
-                      Z0(mu,t,x,y,z) = epsilon*Zeta(U,[t,x,y,z],mu)
-                   end do
-                end do
-             end do
+       do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz
+          do mu = 1, 4
+             Z0(mu,t,x,y,z) = epsilon*Zeta(U,[t,x,y,z],mu)
           end do
-       end do
+       end do; end do; end do; end do
        
        W1 = exp(0.25_dp*Z0)*U
        
-       do t = 1, Lt
-          do x = 1, Lx
-             do y = 1, Ly
-                do z = 1, Lz
-                   do mu = 1, 4
-                      Z1(mu,t,x,y,z) = epsilon*Zeta(W1,[t,x,y,z],mu)
-                   end do
-                end do
-             end do
+       do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz
+          do mu = 1, 4
+             Z1(mu,t,x,y,z) = epsilon*Zeta(W1,[t,x,y,z],mu)
           end do
-       end do
+       end do; end do; end do; end do
               
        B = 8.0_dp/9.0_dp*Z1-17.0_dp/36.0_dp*Z0
        W2 = exp(B)*W1
        
-       do t = 1, Lt
-          do x = 1, Lx
-             do y = 1, Ly
-                do z = 1, Lz
-                   do mu = 1, 4
-                      Z2(mu,t,x,y,z) = epsilon*Zeta(W2,[t,x,y,z],mu)
-                   end do
-                end do
-             end do
+       do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz
+          do mu = 1, 4
+             Z2(mu,t,x,y,z) = epsilon*Zeta(W2,[t,x,y,z],mu)
           end do
-       end do
+       end do; end do; end do; end do
        
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
        q_clover = topological_charge_density_clover_traceless(U)
 
-       write(666, '(I6,*(2X,F14.6))') &
-            it, it*epsilon, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U), &
+       write(f1, '(*(ES16.8,2X))') &
+            it*epsilon, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U), &
             2*sum(real(tr(Z0*Z0)))/(product(L)*epsilon**2), (S-S0)/(epsilon)
 
        do t = 1, Lt
           slab(t) = slab_top_char(q_clover,t)
-          write(777,*) t, slab(t)
-          flush(777)
+          write(f2,*) t, slab(t), slab_profile(q_clover,t)
+          flush(f2)
        end do
-       write(777,"(3/) ")
-       flush(666)
+       write(f2,"(3/) ")
+       flush(f1)
        S0 = S
     end do wilson_time
-    close(666)
+    close(f1)
   end subroutine wilson_flow_rk3
 
 

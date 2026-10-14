@@ -180,6 +180,30 @@ contains
     
   end function slab_top_char
 
+
+  function slab_profile(top,it)
+    real(dp), intent(in) :: top(Lt,Lx,Ly,Lz)
+    integer, intent(in) :: it
+    real(dp) :: slab_profile, Qs, q(Lt)
+    integer :: s, t
+
+
+    do t = 1, Lt
+       q = sum(top(t,:,:,:))
+    end do
+    
+    slab_profile = 0.0_dp
+    do t = 1, Lt
+       q = 0.0_dp
+       do s = t, t+it-1
+          Qs = Qs + q(mod(s-1,Lt)+1)
+       end do
+       slab_profile = slab_profile + Qs**2
+    end do
+    slab_profile = slab_profile/Lt
+    
+  end function slab_profile
+
   
 end module observables
 

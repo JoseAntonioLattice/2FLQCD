@@ -1,19 +1,19 @@
 &lattice
-L = 8,8,8,8
+L = 64,32,32,32
 N = 100
 epsilon = 0.02
 N_thermalization = 1
 N_measurements = 1
 N_skip = 1
-betai = 0.1
+betai = 5.25
 betaf = 10.0
 nbeta = 1
 start = "hot"
 algorithm = "rk3"
 GFON = T
 saveconf = F
-readconf = T
-readildg = F
+readconf = F
+readildg = T
 m0 = 100.0
 mod = "antihermitian"
 /

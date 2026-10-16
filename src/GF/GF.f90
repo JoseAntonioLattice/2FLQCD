@@ -45,19 +45,19 @@ contains
   
   subroutine wilson_flow_rk3(U,filename)
     type(su3), intent(inout) :: U(4,Lt,Lx,Ly,Lz)
-    character(*), intent(in) :: filename(2)
+    character(512), intent(in) :: filename(2)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it, f1, f2
     real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), slab(Lt)
     
 
-    open(unit = f1, file = filename(1))
+    open(unit = f1, file = trim(filename(1)))
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
 
     q_clover = topological_charge_density_clover_traceless(U)
-    open(unit = f2, file = filename(2))
+    open(unit = f2, file = trim(filename(2)))
     do t = 1, Lt
        slab(t) = slab_top_char(q_clover,t)
        write(f2,*) t, slab(t), slab_profile(q_clover,t)

@@ -580,6 +580,35 @@ We choose the 3 independent permutations of $\varepsilon_{\mu\nu\rho\sigma}$ to 
               \varepsilon_{\mu\nu\rho\sigma}\re\tr\left(Q_{x,\mu\nu}\left[Q_{x,\rho\sigma}-Q_{x,\rho\sigma}^{\dagger}\right]\right) 
 \end{equation}
 
+\section{The slab method}
+We stay in a topological sector where $|Q|=\text{constant}$, and measure the topological charge $q$ in a subvolume $xV$ of the lattice, where $x\in[0,1]$. It turns out that
+\begin{equation}
+    \langle q^2 \rangle = \chi_t V x + (Q^2 - \chi_t V ) x^2.  
+\end{equation}
+
+So if we do a fit to this function we can extract the topological susceptibility whitout leaving the topological sector. It can be useful when we have topological freezing. 
+
+
+\subsection{Derivation}
+
+If we assume parity symmetry so $\langle Q \rangle = 0$, and that the topological charge obeys a Gaussian probability density function,
+
+\begin{equation}
+    p(Q) \propto \exp(-Q^2/(2\chi_t^2V)), \ \ \ \chi_t = \frac{1}{V}\langle Q^2 \rangle.
+\end{equation} 
+
+We take the periodic volume of the lattice $V$ and divide it into \textit{slabs} of volume $xV$ and $(1-x)V$, where $x\in[0,1]$. We denote the topological charge in the volume $xV$ as $q(x)$, which is not an integer. Therefore, at fixed $Q$, the probability of having a charge $q(x)$ in the first slab and a charge $Q - q(x)$ in the second slab is
+\begin{eqnarray}
+    p_1(q) p_2(Q-q) & \propto & \exp\left(-\frac{q^2}{2\chi_t^2Vx}\right) \exp\left(-\frac{(Q-q)^2}{2\chi_t^2V(1-x)}\right) \nonumber\\
+    & = & \exp\left(-\frac{1}{2\chi_t^2V}\left[ \frac{q'^2}{x(1-x)}+Q^2\right]\right) \nonumber \\
+    & \propto & \exp\left(-\frac{1}{2\chi_t^2V}\frac{q'^2}{x(1-x)}\right),
+\end{eqnarray}
+where we have defined $q'\equiv q - Qx$. This indicates that $q'$ follows a Gaussian distribution with $\langle q' \rangle = 0$ and $\sigma_{q'}^2 = \chi_t^2 V x(1-x)$ which implies 
+\begin{eqnarray}
+    \langle q' \rangle = \langle q - Qx \rangle = 0 \rightarrow \langle q \rangle = xQ, \nonumber \\ 
+\sigma_{q'}^2 = \langle q'^2 \rangle - \langle q' \rangle^2 = \langle q^2 \rangle -Q^2x^2, \nonumber \\
+ \langle q^2 \rangle  = \chi_t^2 V x(1-x) + Q^2x^2 =  \chi_t V x + (Q^2 - \chi_t V ) x^2.
+\end{eqnarray}
 
 \section{Acknowledgements}
 The author thanks Dr.\ Wolfgang Bietenholz for funding (in the form of meals) this research. Thanks to Dr.\ Urs Gerber for providing a recipe for implementing the heatbath algorithm for the U(1) gauge theory at an early stage of this research. Thanks to MSc.\ Jaime Fabián Nieto Castellanos for his help in the implementation of the Hybrid Monte Carlo algorithm in the Schwinger model. I want to thank Ariana Grande, The Weeknd and Polyphia for giving the right inspiration while working on this paper. Without their music I could have easily gone crazy.

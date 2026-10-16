@@ -194,7 +194,7 @@ contains
     
     slab_profile = 0.0_dp
     do t = 1, Lt
-       q = 0.0_dp
+       Qs = 0.0_dp
        do s = t, t+it-1
           Qs = Qs + q(mod(s-1,Lt)+1)
        end do

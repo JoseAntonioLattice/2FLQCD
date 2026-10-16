@@ -99,8 +99,9 @@ contains
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp) :: beta(:)
     integer :: ib, inunit, ic
-    character(:), allocatable :: filename, f2
+    character(512) :: filename, f2
     character(512) :: conf_file
+    integer :: indx
     
     open(newunit=inunit, file= "data/plaquette_value_"//trim(algorithm)//".dat")
     write(inunit,nml = lattice)
@@ -122,7 +123,7 @@ contains
           
           
           write(*,*) "# of configuration"
-          read(*,"(a)") indx
+          read(*,*) indx
           
           if(readconf) then
              filename = "data/configurations/Lt="//int2str(Lt)// &

@@ -162,6 +162,33 @@ contains
     end do; end do; end do; end do
           
   end function topological_charge_density_clover_traceless
+
+
+
+
+  function topological_charge_density_plaquette(U) result(q)
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    integer :: t, x, y, z, s(4)
+    integer :: mu, nu, rho, sigma
+    real(dp) :: q(Lt,Lx,Ly,Lz)
+    
+
+    q = 0.0_dp
+    
+    do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz 
+
+       s = [t,x,y,z]
+       do mu = 1, 4; do nu = 1, 4; do rho = 1, 4; do sigma = 1, 4  
+          q(t,x,y,z) = q(t,x,y,z) + levi_civita(mu,nu,rho,sigma) * &
+                       Field_strength_plq_traceless(U,s,mu,nu) * &
+                       Field_strength_plq_traceless(U,s,rho,sigma)
+       end do; end do; end do; end do
+       
+    end do; end do; end do; end do
+    
+  end function topological_charge_density_plaquette
+
+  
   
   function topological_charge_clover_traceless(U) result(Q)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U

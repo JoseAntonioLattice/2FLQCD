@@ -170,11 +170,12 @@ contains
     type(su3), dimension(:,:,:,:,:), intent(in) :: U
     integer, intent(in) :: x(4), mu, nu
     type(matrix3x3) :: F
-
-    F = plaquette(U,x,mu,nu)
-    F = F - dagger(F)
-    F = 1/2.0_dp * (F - 1/3.0_dp * delta_3x3 * tr(F))
+    type(su3) :: tmp
     
+    tmp = plaquette(U,x,mu,nu)
+    tmp = tmp - dagger(tmp)
+    F%mat = 1/2.0_dp * (tmp%mat - delta_3x3 * tr(tmp)/3.0_dp)
+        
   end function field_strength_plq_traceless
 
 end module gauge

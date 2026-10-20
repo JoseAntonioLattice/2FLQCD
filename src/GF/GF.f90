@@ -49,7 +49,7 @@ contains
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: W1, W2, W3
     type(su3alg), dimension(4,Lt,Lx,Ly,Lz) :: Z0, Z1, Z2, B
     integer :: x,y,t,z, mu, it, f1, f2
-    real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), slab(Lt)
+    real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), q_plq(Lt,Lx,Ly,Lz), slab(Lt)
     
 
     open(unit = f1, file = trim(filename(1)))
@@ -57,15 +57,18 @@ contains
     S0 = energy_density(U)
 
     q_clover = topological_charge_density_clover_traceless(U)
+    q_plq = topological_charge_density_plq_traceless(U)
     open(unit = f2, file = trim(filename(2)))
     do t = 1, Lt
        slab(t) = slab_top_char(q_clover,t)
-       write(f2,*) t, slab(t), slab_profile(q_clover,t)
+       write(f2,*) t, slab(t), slab_profile(q_clover,t), &
+                     slab_top_char(q_plq,t), slab_profile(q_plq,t)
     end do
     write(f2,"(3/) ")
     
     write(f1, '(*(ES16.8,2x))') &
-         0.0_dp, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U)
+         0.0_dp, energy_density(U), energy_density_clover_traceless(U), &
+         topological_charge_plq_traceless(U), topological_charge_clover_traceless(U)
 
     wilson_time: do it = 1, N
        do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz
@@ -96,12 +99,14 @@ contains
        q_clover = topological_charge_density_clover_traceless(U)
 
        write(f1, '(*(ES16.8,2X))') &
-            it*epsilon, energy_density(U), energy_density_clover_traceless(U), topological_charge_clover_traceless(U), &
+            it*epsilon, energy_density(U), energy_density_clover_traceless(U), &
+            topological_charge_plq_traceless(U), topological_charge_clover_traceless(U), &
             2*sum(real(tr(Z0*Z0)))/(product(L)*epsilon**2), (S-S0)/(epsilon)
 
        do t = 1, Lt
           slab(t) = slab_top_char(q_clover,t)
-          write(f2,*) t, slab(t), slab_profile(q_clover,t)
+          write(f2,*) t, slab(t), slab_profile(q_clover,t), &
+                     slab_top_char(q_plq,t), slab_profile(q_plq,t)
           flush(f2)
        end do
        write(f2,"(3/) ")

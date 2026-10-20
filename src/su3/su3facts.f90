@@ -32,6 +32,7 @@ module su3facts
      procedure :: dagger => dagger_su3alg
   end type su3alg
 
+  integer :: levi_civita(4,4,4,4)
   type(su3alg) :: gellmann_matrix(8), su3alg_gen(8)
   type(matrix4x4) :: dirac_matrix(5)
   complex(dp), dimension(3,3) :: delta_3x3 = &
@@ -105,6 +106,39 @@ module su3facts
   
 contains
 
+  subroutine create_levi_civita()
+
+    levi_civita = 0
+    
+    levi_civita(1,2,3,4) = 1
+    levi_civita(1,3,4,2) = 1
+    levi_civita(1,4,2,3) = 1
+    levi_civita(2,1,4,3) = 1
+    levi_civita(2,3,1,4) = 1
+    levi_civita(2,4,3,1) = 1
+    levi_civita(3,1,2,4) = 1
+    levi_civita(3,2,4,1) = 1
+    levi_civita(3,4,1,2) = 1
+    levi_civita(4,1,3,2) = 1
+    levi_civita(4,2,1,3) = 1
+    levi_civita(4,3,2,1) = 1
+
+    levi_civita(1,2,4,3) = -1
+    levi_civita(1,3,2,4) = -1
+    levi_civita(1,4,3,2) = -1
+    levi_civita(2,1,3,4) = -1
+    levi_civita(2,3,4,1) = -1
+    levi_civita(2,4,1,3) = -1
+    levi_civita(3,1,4,2) = -1
+    levi_civita(3,2,1,4) = -1
+    levi_civita(3,4,2,1) = -1
+    levi_civita(4,1,2,3) = -1
+    levi_civita(4,2,3,1) = -1
+    levi_civita(4,3,1,2) = -1
+
+    !print*, levi_civita
+  end subroutine create_levi_civita
+  
   elemental pure function matrix4x4_sum(A,B)
     type(matrix4x4), intent(in) :: A, B
     type(matrix4x4) :: matrix4x4_sum

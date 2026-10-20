@@ -35,7 +35,6 @@ contains
              
   end function plaquette_value
 
-
   function action(U,beta) result(S)
     type(su3), dimension(4,Lt,Lx,Ly,Lz), intent(inout) :: U
     real(dp),intent(in) :: beta
@@ -84,7 +83,6 @@ contains
     E = 2*(18.0_dp - E/product(L))
   end function energy_density
 
-
   !!Computation of energy density with clover definition
   ! E_{mu,nu} = 1/4 G_{mu,nu}^a G_{mu,nu}^a = -1/2 Tr(G_{mu,nu} G_{mu,nu}) = -1/128 tr((Q_{mu,nu} - dagger(Q_{mu,nu}))^2)
   ! G_{mu,nu} = (Q_{mu,nu} - dagger(Q_{mu,nu}))/8
@@ -105,8 +103,7 @@ contains
           E = E + real(tr(F*F))
        end do; end do
     end do; end do; end do; end do
-          
-
+ 
     E = -E/product(L)
   end function energy_density_clover_traceless
 
@@ -142,7 +139,6 @@ contains
     integer :: t, x, y, z, s(4)
     type(matrix3x3) :: Q12, Q13, Q14, Q34, Q24, Q23
     real(dp) :: q(Lt,Lx,Ly,Lz)
-
     
     do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz 
 
@@ -163,32 +159,34 @@ contains
           
   end function topological_charge_density_clover_traceless
 
-
-
-
-  function topological_charge_density_plaquette(U) result(q)
+  function topological_charge_density_plq_traceless(U) result(q)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
     integer :: t, x, y, z, s(4)
     integer :: mu, nu, rho, sigma
     real(dp) :: q(Lt,Lx,Ly,Lz)
     
-
     q = 0.0_dp
-    
     do t = 1, Lt; do x = 1, Lx; do y = 1, Ly; do z = 1, Lz 
-
        s = [t,x,y,z]
-       do mu = 1, 4; do nu = 1, 4; do rho = 1, 4; do sigma = 1, 4  
-          q(t,x,y,z) = q(t,x,y,z) + levi_civita(mu,nu,rho,sigma) * &
-                       Field_strength_plq_traceless(U,s,mu,nu) * &
-                       Field_strength_plq_traceless(U,s,rho,sigma)
+       do mu = 1, 4; do nu = 1, 4; do rho = 1, 4; do sigma = 1, 4
+          if(levi_civita(mu,nu,rho,sigma) /= 0 ) then
+             q(t,x,y,z) = q(t,x,y,z) + levi_civita(mu,nu,rho,sigma) * &
+                  tr(Field_strength_plq_traceless(U,s,mu,nu) * &
+                  Field_strength_plq_traceless(U,s,rho,sigma))
+          end if
        end do; end do; end do; end do
-       
+       q(t,x,y,z) = -q(t,x,y,z)/(32*pi**2)
     end do; end do; end do; end do
     
-  end function topological_charge_density_plaquette
+  end function topological_charge_density_plq_traceless
 
-  
+  function topological_charge_plq_traceless(U) result(Q)
+    type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
+    real(dp) :: Q
+    
+    Q = sum(topological_charge_density_plq_traceless(U))
+    
+  end function topological_charge_plq_traceless
   
   function topological_charge_clover_traceless(U) result(Q)
     type(su3), dimension(4,Lt,Lx,Ly,Lz) :: U
@@ -197,7 +195,7 @@ contains
     Q = sum(topological_charge_density_clover_traceless(U))
     
   end function topological_charge_clover_traceless
-
+  
   function slab_top_char(top,it)
     real(dp), intent(in) :: top(:,:,:,:)
     integer, intent(in) :: it
@@ -207,13 +205,11 @@ contains
     
   end function slab_top_char
 
-
   function slab_profile(top,it)
     real(dp), intent(in) :: top(Lt,Lx,Ly,Lz)
     integer, intent(in) :: it
     real(dp) :: slab_profile, Qs, q(Lt)
     integer :: s, t
-
 
     do t = 1, Lt
        q = sum(top(t,:,:,:))
@@ -230,7 +226,6 @@ contains
     slab_profile = slab_profile/Lt
     
   end function slab_profile
-
   
 end module observables
 

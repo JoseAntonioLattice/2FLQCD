@@ -16,6 +16,7 @@ contains
 
     call create_gellmann_matrices()
     call create_gamma_matrices()
+    call create_levi_civita()
     
     call set_pbc(L)
     

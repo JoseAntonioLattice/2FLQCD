@@ -97,6 +97,7 @@ contains
        U = exp(0.75_dp*Z2 - B)*W2
        S = energy_density(U)
        q_clover = topological_charge_density_clover_traceless(U)
+       q_plq = topological_charge_density_plq_traceless(U)
 
        write(f1, '(*(ES16.8,2X))') &
             it*epsilon, energy_density(U), energy_density_clover_traceless(U), &

@@ -192,12 +192,11 @@ contains
           do y = 1, meta%Ly
              do z = 1, meta%Lz
                
-                   !U(mu,t,x,y,z)%mat(a,b) = U_ildg(a,b,mu,x,y,z,t)
-                   U(1,t,x,y,z)%mat = U_ildg(:,:,4,x,y,z,t)   ! t
-                   U(2,t,x,y,z)%mat = U_ildg(:,:,1,x,y,z,t)   ! x
-                   U(3,t,x,y,z)%mat = U_ildg(:,:,2,x,y,z,t)   ! y
-                   U(4,t,x,y,z)%mat = U_ildg(:,:,3,x,y,z,t)   ! z
-                
+                !U(mu,t,x,y,z)%mat(a,b) = U_ildg(a,b,mu,x,y,z,t)
+                U(1,t,x,y,z)%mat = U_ildg(:,:,4,x,y,z,t)   ! t
+                U(2,t,x,y,z)%mat = U_ildg(:,:,1,x,y,z,t)   ! x
+                U(3,t,x,y,z)%mat = U_ildg(:,:,2,x,y,z,t)   ! y
+                U(4,t,x,y,z)%mat = U_ildg(:,:,3,x,y,z,t)   ! z
              end do
           end do
        end do

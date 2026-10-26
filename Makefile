@@ -57,4 +57,5 @@ clean:
 	rm -r build/obj/* build/mod/*
 
 run_WF:
-	$(EXEWF)
+	{ echo 8 8 8 8; echo "5.2"; echo 3; echo 3; ls data/h*.dat ;} |$(EXEWF)
+

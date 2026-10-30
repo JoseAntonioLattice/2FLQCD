@@ -52,18 +52,29 @@ program main
      end do
     
   end do
-
-  open(unit=666,file = "topchar.dat", status = "unknown")
+ 
   do j = 0, ntime
      call rescale_charge(n,top_char(j,:),alpha(j),newtopchar(j,:))
   end do
 
+  open(unit=666,file = "topchar.dat", status = "unknown")
   do i =1, n
      do j = 0, ntime
-        write(666,*) newtopchar(j,i)
+        write(666,*) newtopchar(j,i), top_char(j,i)
      end do
      write(666,"(2/)")
   end do
+  close(666)
+
+  open(unit=666,file = "topchar_hist.dat", status = "unknown")
+  do j = 0, ntime
+     do i = 1, n
+        write(666,*) newtopchar(j,i), top_char(j,i)
+     end do
+     write(666,"(2/)")
+  end do
+ close(666)
+
   
   print*, newtopchar(0,:)
   do i = 1, N
@@ -94,9 +105,9 @@ program main
 
   do j = 0, ntime
      do t = 1, L(1)
-        write(unitslab,*) t, avr(slab_clov(j,:,t))/alpha(j), stderr(slab_clov(j,:,t))/alpha(j), &
-             avr(slab_plq(j,:,t))/alpha(j), stderr(slab_plq(j,:,t))/alpha(j),&
-             avr(slab_clov_profile(j,:,t))/alpha(j), stderr(slab_clov_profile(j,:,t))/alpha(j)
+        write(unitslab,*) t, avr(slab_clov(j,:,t)), stderr(slab_clov(j,:,t)), &
+             avr(slab_plq(j,:,t)), stderr(slab_plq(j,:,t)),&
+             avr(slab_clov_profile(j,:,t)), stderr(slab_clov_profile(j,:,t))
      end do
      write(unitslab,"(2/)")
   end do
@@ -112,11 +123,11 @@ program main
      end do
      write(unitslab,"(2/)")
   end do
+  
 contains
-
   subroutine rescale_charge(nconf, qL, alpha_best, qint)
     implicit none
-
+    
     integer, intent(in)  :: nconf
     real(8), intent(in)  :: qL(nconf)
     real(8), intent(out) :: alpha_best

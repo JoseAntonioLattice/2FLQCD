@@ -212,7 +212,7 @@ contains
     integer :: s, t
 
     do t = 1, Lt
-       q = sum(top(t,:,:,:))
+       q(t) = sum(top(t,:,:,:))
     end do
     
     slab_profile = 0.0_dp

@@ -52,13 +52,13 @@ contains
     real(dp) :: S, S0, q_clover(Lt,Lx,Ly,Lz), q_plq(Lt,Lx,Ly,Lz), slab(Lt)
     
 
-    open(unit = f1, file = trim(filename(1)))
+    open(newunit = f1, file = trim(filename(1)))
     print '(A6,2X,A14,2X,A18,2X,A18)', "# step", "t", "action"
     S0 = energy_density(U)
 
     q_clover = topological_charge_density_clover_traceless(U)
     q_plq = topological_charge_density_plq_traceless(U)
-    open(unit = f2, file = trim(filename(2)))
+    open(newunit = f2, file = trim(filename(2)))
     do t = 1, Lt
        slab(t) = slab_top_char(q_clover,t)
        write(f2,*) t, slab(t), slab_profile(q_clover,t), &

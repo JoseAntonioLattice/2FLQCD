@@ -5,9 +5,9 @@ program main
   implicit none
   character(:), allocatable :: filename
   integer, dimension(4) :: L
-  integer :: i, j, N, Ntime, inunit, idx, outunit, t, unitslab, ios
+  integer :: i, j, N, Ntime, inunit, idx, outunit, t, unitslab, ios, qn, ic, iq
   real(8) :: beta
-  real(8), dimension(:,:), allocatable :: E_plq, E_clov, top_char, newtopchar
+  real(8), dimension(:,:), allocatable :: E_plq, E_clov, top_char, newtopchar, top_char_clov
   real(8), dimension(:,:,:), allocatable :: slab_plq,slab_clov, slab_plq_profile,slab_clov_profile
   real(8), dimension(:), allocatable :: time, alpha
   character(512), allocatable :: configs(:), slabs(:)
@@ -26,13 +26,12 @@ program main
   print*, "User typed: Ntime =", Ntime
 
   allocate(E_plq(0:Ntime,N))
-  allocate(E_clov, top_char,newtopchar, mold = E_plq)
+  allocate(E_clov, top_char,newtopchar, top_char_clov, mold = E_plq)
   allocate(configs(N), slabs(N))
   allocate(time(0:Ntime))
   allocate(alpha, mold = time)
   
-  allocate(slab_plq(0:ntime,n,L(1)))
-  allocate(slab_clov, slab_plq_profile, slab_clov_profile, mold = slab_plq)
+ 
   
   do i = 1, N
      read(*,'(a)') configs(i)
@@ -48,13 +47,13 @@ program main
      open(newunit = inunit, file = trim(configs(i)), status = "old")
      
      do j = 0, Ntime
-        read(inunit,*) time(j), E_plq(j,i), E_clov(j,i), top_char(j,i)
+        read(inunit,*) time(j), E_plq(j,i), E_clov(j,i), top_char(j,i), top_char_clov(j,i)
      end do
     
   end do
  
   do j = 0, ntime
-     call rescale_charge(n,top_char(j,:),alpha(j),newtopchar(j,:))
+     call rescale_charge(n,top_char_clov(j,:),alpha(j),newtopchar(j,:))
   end do
 
   open(unit=666,file = "topchar.dat", status = "unknown")
@@ -73,27 +72,39 @@ program main
      end do
      write(666,"(2/)")
   end do
- close(666)
+  close(666)
 
   
-  print*, newtopchar(0,:)
+  read(*,*) Qn
+  write(*,*) "topological sector = ", Qn
+  iq = count(abs(nint(newtopchar(Ntime/2,:))) == Qn)
+  
+  
+  allocate(slab_plq(0:ntime,iq,L(1)))
+  allocate(slab_clov, slab_plq_profile, slab_clov_profile, mold = slab_plq)
+  print*, iq
+  ic = 0
   do i = 1, N
-     open(newunit = unitslab, file = trim(slabs(i)), status = "old")
-     print"(a)", trim(slabs(i))
-     do j = 0, Ntime
-        do t = 1, L(1)
-           read(unitslab,*,iostat=ios) idx, slab_clov(j,i,t), slab_clov_profile(j,i,t), slab_plq(j,i,t), slab_plq_profile(j,i,t) 
+     if( abs(nint(newtopchar(Ntime/2,i))) == Qn ) then
+        ic  = ic + 1
+        open(newunit = unitslab, file = trim(slabs(i)), status = "old")
+        print"(a)", trim(slabs(i))
+        do j = 0, Ntime
+           do t = 1, L(1)
+              read(unitslab,*,iostat=ios) idx, slab_clov(j,ic,t), slab_clov_profile(j,ic,t), &
+                   slab_plq(j,ic,t), slab_plq_profile(j,ic,t) 
+           end do
+           
+           if (ios /= 0) then
+              print *, "Error leyendo ", trim(slabs(i)), " en j=", j, " t=", t, " ios=", ios
+              stop
+           end if
+           
         end do
-
-        if (ios /= 0) then
-           print *, "Error leyendo ", trim(slabs(i)), " en j=", j, " t=", t, " ios=", ios
-           stop
-        end if
-        
-     end do
+     end if
      close(unitslab)
   end do
-
+  
   open(newunit = outunit, file = "WF.dat" ,status = "unknown")
   do j = 0, ntime
      write(outunit,*) time(j), avr(E_plq(j,:)), stderr(E_plq(j,:)), &
@@ -117,9 +128,9 @@ program main
   open(newunit = unitslab, file = "WF_slab_new.dat" ,status = "unknown")
   do j = 0, ntime
      do t = 1, L(1)
-        write(unitslab,*) t, slab_clov(j,1,t)*alpha(j), &
-             slab_plq(j,1,t)*alpha(j), &
-        slab_plq_profile(j,1,t)*alpha(j), slab_clov_profile(j,1,t)*alpha(j)
+        write(unitslab,*) t, slab_clov(j,1,t)*alpha(j)**2, &
+             slab_plq(j,1,t)*alpha(j)**2, &
+        slab_plq_profile(j,1,t)*alpha(j)**2, slab_clov_profile(j,1,t)*alpha(j)**2
      end do
      write(unitslab,"(2/)")
   end do

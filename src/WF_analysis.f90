@@ -77,7 +77,7 @@ program main
   
   read(*,*) Qn
   write(*,*) "topological sector = ", Qn
-  iq = count(abs(nint(newtopchar(Ntime/2,:))) == Qn)
+  iq = count(abs(nint(newtopchar(85,:))) == Qn)
   
   
   allocate(slab_plq(0:ntime,iq,L(1)))

@@ -5,7 +5,7 @@ program main
   implicit none
   character(:), allocatable :: filename
   integer, dimension(4) :: L
-  integer :: i, j, N, Ntime, inunit, idx, outunit, t, unitslab, ios, qn, ic, iq
+  integer :: i, j, N, Ntime, inunit, idx, outunit, t, unitslab, ios, qn, ic, iq, jconf
   real(8) :: beta
   real(8), dimension(:,:), allocatable :: E_plq, E_clov, top_char, newtopchar, top_char_clov
   real(8), dimension(:,:,:), allocatable :: slab_plq,slab_clov, slab_plq_profile,slab_clov_profile
@@ -75,17 +75,20 @@ program main
   close(666)
 
   
+  
   read(*,*) Qn
   write(*,*) "topological sector = ", Qn
-  iq = count(abs(nint(newtopchar(85,:))) == Qn)
-  
+
+  read(*,*) jconf
+  iq = count(abs(nint(newtopchar(jconf,:))) == Qn)
+
   
   allocate(slab_plq(0:ntime,iq,L(1)))
   allocate(slab_clov, slab_plq_profile, slab_clov_profile, mold = slab_plq)
   print*, iq
   ic = 0
   do i = 1, N
-     if( abs(nint(newtopchar(Ntime/2,i))) == Qn ) then
+     if( abs(nint(newtopchar(jconf,i))) == Qn ) then
         ic  = ic + 1
         open(newunit = unitslab, file = trim(slabs(i)), status = "old")
         print"(a)", trim(slabs(i))
@@ -118,6 +121,7 @@ program main
      do t = 1, L(1)
         write(unitslab,*) t, avr(slab_clov(j,:,t)), stderr(slab_clov(j,:,t)), &
              avr(slab_plq(j,:,t)), stderr(slab_plq(j,:,t)),&
+             avr(slab_plq_profile(j,:,t)), stderr(slab_plq_profile(j,:,t)),&
              avr(slab_clov_profile(j,:,t)), stderr(slab_clov_profile(j,:,t))
      end do
      write(unitslab,"(2/)")
@@ -134,7 +138,17 @@ program main
      end do
      write(unitslab,"(2/)")
   end do
+
+
   
+  print*, "alpha(",jconf,") =", alpha(jconf)
+  do i = 1, N
+     write(*,'(i5,4f12.5)') i, top_char_clov(jconf,i), alpha(jconf)*top_char_clov(jconf,i), &
+          newtopchar(jconf,i), alpha(jconf)*top_char_clov(jconf,i) - newtopchar(jconf,i)
+  end do
+
+  print*, "chi_t = ",avr(newtopchar(:,jconf)**2)/product(L), &
+       stderr(newtopchar(:,jconf)**2)/product(L)
 contains
   subroutine rescale_charge(nconf, qL, alpha_best, qint)
     implicit none

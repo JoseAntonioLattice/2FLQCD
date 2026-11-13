@@ -6,10 +6,10 @@ program main
   character(:), allocatable :: filename
   integer, dimension(4) :: L
   integer :: i, j, N, Ntime, inunit, idx, outunit, t, unitslab, ios, qn, ic, iq, jconf
-  real(8) :: beta
+  real(8) :: beta, ac, x
   real(8), dimension(:,:), allocatable :: E_plq, E_clov, top_char, newtopchar, top_char_clov
   real(8), dimension(:,:,:), allocatable :: slab_plq,slab_clov, slab_plq_profile,slab_clov_profile
-  real(8), dimension(:), allocatable :: time, alpha
+  real(8), dimension(:), allocatable :: time, alpha, D
   character(512), allocatable :: configs(:), slabs(:)
   
   print*, "Enter lattice array"
@@ -27,7 +27,7 @@ program main
 
   allocate(E_plq(0:Ntime,N))
   allocate(E_clov, top_char,newtopchar, top_char_clov, mold = E_plq)
-  allocate(configs(N), slabs(N))
+  allocate(configs(N), slabs(N),D(N))
   allocate(time(0:Ntime))
   allocate(alpha, mold = time)
   
@@ -80,15 +80,15 @@ program main
   write(*,*) "topological sector = ", Qn
 
   read(*,*) jconf
-  iq = count(abs(nint(newtopchar(jconf,:))) == Qn)
+  !iq = count(abs(nint(newtopchar(jconf,:))) == Qn)
 
   
-  allocate(slab_plq(0:ntime,iq,L(1)))
+  allocate(slab_plq(0:ntime,N,L(1)))
   allocate(slab_clov, slab_plq_profile, slab_clov_profile, mold = slab_plq)
   print*, iq
   ic = 0
   do i = 1, N
-     if( abs(nint(newtopchar(jconf,i))) == Qn ) then
+     !if( abs(nint(newtopchar(jconf,i))) == Qn ) then
         ic  = ic + 1
         open(newunit = unitslab, file = trim(slabs(i)), status = "old")
         print"(a)", trim(slabs(i))
@@ -97,6 +97,7 @@ program main
               read(unitslab,*,iostat=ios) idx, slab_clov(j,ic,t), slab_clov_profile(j,ic,t), &
                    slab_plq(j,ic,t), slab_plq_profile(j,ic,t) 
            end do
+          
            
            if (ios /= 0) then
               print *, "Error leyendo ", trim(slabs(i)), " en j=", j, " t=", t, " ios=", ios
@@ -104,7 +105,8 @@ program main
            end if
            
         end do
-     end if
+         !print*, slab_clov(0,ic,32), top_char_clov(0,i)**2
+     !end if
      close(unitslab)
   end do
   
@@ -117,12 +119,14 @@ program main
   
   open(newunit = unitslab, file = "WF_slab.dat" ,status = "unknown")
 
+  
   do j = 0, ntime
+     ac = alpha(j)**2
      do t = 1, L(1)
-        write(unitslab,*) t, avr(slab_clov(j,:,t)), stderr(slab_clov(j,:,t)), &
+        write(unitslab,*) t, avr(slab_clov(j,:,t)*ac), stderr(slab_clov(j,:,t)*ac), &
              avr(slab_plq(j,:,t)), stderr(slab_plq(j,:,t)),&
              avr(slab_plq_profile(j,:,t)), stderr(slab_plq_profile(j,:,t)),&
-             avr(slab_clov_profile(j,:,t)), stderr(slab_clov_profile(j,:,t))
+             avr(slab_clov_profile(j,:,t)*ac), stderr(slab_clov_profile(j,:,t)*ac)
      end do
      write(unitslab,"(2/)")
   end do
@@ -132,23 +136,24 @@ program main
   open(newunit = unitslab, file = "WF_slab_new.dat" ,status = "unknown")
   do j = 0, ntime
      do t = 1, L(1)
-        write(unitslab,*) t, slab_clov(j,1,t)*alpha(j)**2, &
-             slab_plq(j,1,t)*alpha(j)**2, &
-        slab_plq_profile(j,1,t)*alpha(j)**2, slab_clov_profile(j,1,t)*alpha(j)**2
+        x = dble(t)/L(1)
+        D(:) = slab_clov_profile(j,:,t) - x**2*slab_clov_profile(j,:,L(1))
+        write(unitslab,*) x, avr(D), stderr(D)
      end do
      write(unitslab,"(2/)")
   end do
 
 
   
-  print*, "alpha(",jconf,") =", alpha(jconf)
-  do i = 1, N
-     write(*,'(i5,4f12.5)') i, top_char_clov(jconf,i), alpha(jconf)*top_char_clov(jconf,i), &
-          newtopchar(jconf,i), alpha(jconf)*top_char_clov(jconf,i) - newtopchar(jconf,i)
-  end do
+  !print*, "alpha(",jconf,") =", alpha(jconf)
+  !do i = 1, N
+  !   write(*,'(i5,4f12.5)') i, top_char_clov(jconf,i), alpha(jconf)*top_char_clov(jconf,i), &
+  !        newtopchar(jconf,i), alpha(jconf)*top_char_clov(jconf,i) - newtopchar(jconf,i)
+  !end do
 
-  print*, "chi_t = ",avr(newtopchar(:,jconf)**2)/product(L), &
-       stderr(newtopchar(:,jconf)**2)/product(L)
+  
+  print*, "chi_t = ",avr(top_char_clov(:,jconf)**2)/product(L), &
+       stderr(top_char_clov(:,jconf)**2)/product(L)
 contains
   subroutine rescale_charge(nconf, qL, alpha_best, qint)
     implicit none

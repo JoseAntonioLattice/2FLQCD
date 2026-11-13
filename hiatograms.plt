@@ -17,6 +17,6 @@ set xlabel "Q" font ",16"
 
 #do for [i=101:600]{
 #    set output sprintf("%.3d.png",i) 
-p "topchar_hist.dat" i 0 u (hist($1,width)):(1.0) smooth freq w boxes lc rgb "red"
+p "topchar_hist.dat" i 150 u (hist($1,width)):(1.0) smooth freq w boxes lc rgb "red"
 #}
 #unset output

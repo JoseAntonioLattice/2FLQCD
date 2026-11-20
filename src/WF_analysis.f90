@@ -142,7 +142,7 @@ program main
      end do
      write(unitslab,"(2/)")
   end do
-
+  close(unitslab)
 
   
   !print*, "alpha(",jconf,") =", alpha(jconf)
@@ -150,10 +150,13 @@ program main
   !   write(*,'(i5,4f12.5)') i, top_char_clov(jconf,i), alpha(jconf)*top_char_clov(jconf,i), &
   !        newtopchar(jconf,i), alpha(jconf)*top_char_clov(jconf,i) - newtopchar(jconf,i)
   !end do
-
-  
-  print*, "chi_t = ",avr(top_char_clov(:,jconf)**2)/product(L), &
-       stderr(top_char_clov(:,jconf)**2)/product(L)
+  open(newunit = unitslab, file = "chi_t_direct.dat" ,status = "unknown")
+  do j = 0, ntime
+     print*, "chi_t = ",(avr(top_char_clov(j,:)**2))/product(L)!&
+          !-avr(top_char_clov(:,j))**2)/product(L)
+     !stderr(top_char_clov(:,jconf)**2)/product(L)
+     write(unitslab,*) j, (avr(top_char_clov(j,:)**2)-avr(top_char_clov(:,j))**2)/product(L)
+  end do
 contains
   subroutine rescale_charge(nconf, qL, alpha_best, qint)
     implicit none

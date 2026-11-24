@@ -2,6 +2,7 @@ program main
 
   use number2string
   use statistics
+  use jackknife_slab
   implicit none
   character(:), allocatable :: filename
   integer, dimension(4) :: L
@@ -11,6 +12,8 @@ program main
   real(8), dimension(:,:,:), allocatable :: slab_plq,slab_clov, slab_plq_profile,slab_clov_profile
   real(8), dimension(:), allocatable :: time, alpha, D
   character(512), allocatable :: configs(:), slabs(:)
+  integer  :: unitchi,nbin
+  real(8) :: A, dA, B, dB
   
   print*, "Enter lattice array"
   read(*,*) L
@@ -109,6 +112,15 @@ program main
      !end if
      close(unitslab)
   end do
+
+  open(newunit = unitchi, file = "chi_t.dat", status = "unknown")
+  nbin = 2
+  do j = 0, ntime
+     call chi_slab_jk(slab_clov_profile(j,:,:), 8, 16, nbin, A, dA)
+     call chi_direct_jk(top_char_clov(j,:), nbin, B, dB)
+     write(unitchi,*) time(j), A/product(L), dA/product(L), B/product(L), dB/product(L)
+  end do
+
   
   open(newunit = outunit, file = "WF.dat" ,status = "unknown")
   do j = 0, ntime

@@ -4,7 +4,7 @@ MODDIR := build/mod
 
 FLAGS += -I $(MODDIR) -J $(MODDIR)
 
-SRCS := src/ildg/ildg_lime.f90 src/num2str/num2str.f90 src/files/check_files_directories.f90 src/statistics/statistics.f90 src/pbc/pbc.f90 src/parameters/parameters.f90 src/su3/su3facts.f90 src/save/save.f90 src/arrays/arrays.f90 src/random/random.f90 \
+SRCS := src/jackknife_slab.f90 src/ildg/ildg_lime.f90 src/num2str/num2str.f90 src/files/check_files_directories.f90 src/statistics/statistics.f90 src/pbc/pbc.f90 src/parameters/parameters.f90 src/su3/su3facts.f90 src/save/save.f90 src/arrays/arrays.f90 src/random/random.f90 \
 src/starts/starts.f90 src/gauge_links/gauge.f90 src/observables/observables.f90 src/GF/GF.f90 src/dirac/dirac.f90 src/conjugate_gradient/CG.f90 src/HMC/hybridMC.f90 src/lua/lua.f90 src/dynamics/dynamics.f90
 
 OBJS := $(patsubst %.f90, $(OBJDIR)/%.o, $(notdir $(SRCS)))
@@ -46,7 +46,7 @@ build/obj/test.o: tests/test.f90
 build/obj/WF_analysis.o: src/WF_analysis.f90
 	$(FC) $(FLAGS) -c $< -o $@
 
-$(EXEWF): build/obj/num2str.o build/obj/statistics.o build/obj/WF_analysis.o
+$(EXEWF): build/obj/num2str.o build/obj/jackknife_slab.o build/obj/statistics.o build/obj/WF_analysis.o
 	$(FC) $^ -o $@
 
 test_run:
